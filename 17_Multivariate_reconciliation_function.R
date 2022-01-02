@@ -2,11 +2,16 @@
 # All-level bootstrapped base forecasts (B = 1000) using multivariate forecasting method
 #########################################################################################
 
-# fh: forecast horizon
+library(demography)
+library(ftsa)
+
+# Define a function to compute bootstrapped base forecasts
+
+## fh: forecast horizon
 
 PI_prefecture_mfts <- function(fh)
 {
-    prefecture_fh_PI_mfts = array(, dim = c(101, (16-fh), 168, 1000))
+    prefecture_fh_PI_mfts = array(0, dim = c(101, (16-fh), 168, 1000))
     
     if(fh == 15)
     {
@@ -209,25 +214,7 @@ PI_prefecture_mfts <- function(fh)
 # one- to 15-step-ahead bootstrapped base forecasts (B = 1000)
 ###############################################################
 
-PI_prefecture_h1to15_mfts = list()
-
-PI_prefecture_h1to15_mfts[[1]] = PI_prefecture_mfts(fh = 1)
-PI_prefecture_h1to15_mfts[[2]] = PI_prefecture_mfts(fh = 2)
-PI_prefecture_h1to15_mfts[[3]] = PI_prefecture_mfts(fh = 3)
-PI_prefecture_h1to15_mfts[[4]] = PI_prefecture_mfts(fh = 4)
-PI_prefecture_h1to15_mfts[[5]] = PI_prefecture_mfts(fh = 5)
-PI_prefecture_h1to15_mfts[[6]] = PI_prefecture_mfts(fh = 6)
-PI_prefecture_h1to15_mfts[[7]] = PI_prefecture_mfts(fh = 7)
-PI_prefecture_h1to15_mfts[[8]] = PI_prefecture_mfts(fh = 8)
-PI_prefecture_h1to15_mfts[[9]] = PI_prefecture_mfts(fh = 9)
-PI_prefecture_h1to15_mfts[[10]] = PI_prefecture_mfts(fh = 10)
-PI_prefecture_h1to15_mfts[[11]] = PI_prefecture_mfts(fh = 11)
-PI_prefecture_h1to15_mfts[[12]] = PI_prefecture_mfts(fh = 12)
-PI_prefecture_h1to15_mfts[[13]] = PI_prefecture_mfts(fh = 13)
-PI_prefecture_h1to15_mfts[[14]] = PI_prefecture_mfts(fh = 14)
-PI_prefecture_h1to15_mfts[[15]] = PI_prefecture_mfts(fh = 15)
-
-###
+### Compute base forecasts via parallel (not recommended for PC with small memory)
 
 cl <- makeCluster(4) 
 registerDoParallel(cl)
@@ -259,7 +246,7 @@ rm(PI_prefecture_h1to15_mfts_13to15)
 stopCluster(cl)
 rm(cl)
 
-###
+# Compute base forecasts step-by-step
 
 PI_prefecture_h1to15_mfts_1 = PI_prefecture_mfts(fh = 1)
 save(PI_prefecture_h1to15_mfts_1, file = "PI_prefecture_h1to15_mfts_1.RData")
@@ -341,13 +328,15 @@ gc()
 # All-level bootstrapped grouped forecasts
 ###########################################
 
+# Define a functino to reconcile pointwise interval forecasts
+
 # kj: forecast horizon from h = 1 to 15
 # age: age indexes from 1 to 101 (ages 0 to 100)
 
 BU_optim_hier_PI_mfts <- function(kj, age, hier_method = c("BU", "comb_OLS", "mint"))
 {
     hier_method = match.arg(hier_method)
-    hier_fore = array(, dim = c(168, (16-kj), 1000))
+    hier_fore = array(0, dim = c(168, (16-kj), 1000))
     
     # Summing matrix for kj horizon at a given age
     
@@ -400,11 +389,12 @@ BU_optim_hier_PI_mfts <- function(kj, age, hier_method = c("BU", "comb_OLS", "mi
     return(hier_fore)
 }
 
-# hier_method = "BU" (output: h1 to h15 BU reconciled bootstrap samples)
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "BU" (output: h1 to h15 BU reconciled bootstrap samples)
 
 BU_fun_mfts <- function(kj)
 {
-    dum = array(, dim = c(101, 168, (16-kj), 1000))
+    dum = array(0, dim = c(101, 168, (16-kj), 1000))
     for(ij in 1:101)
     {
         dum[ij,,,] = BU_optim_hier_PI_mfts(kj = kj, age = ij)
@@ -424,12 +414,12 @@ BU_optim_hier_comb_mfts = foreach(kj = 1:15) %dopar% BU_fun_mfts(kj = kj)
 stopCluster(cl)
 rm(cl)
 
-
-# hier_method = "comb_OLS" (output: h1 to h15 OLS reconciled bootstrap samples)
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "comb_OLS" (output: h1 to h15 OLS reconciled bootstrap samples) 
 
 OLS_fun_mfts <- function(kj)  
 {
-    dum = array(, dim = c(101, 168, (16-kj), 1000))
+    dum = array(0, dim = c(101, 168, (16-kj), 1000))
     for(ij in 1:101)
     {
       print(paste("age =", ij))
@@ -449,11 +439,12 @@ save(OLS_hier_comb_mfts, file = "OLS_hier_comb_mfts.RData")
 stopCluster(cl)
 rm(cl)
 
-# hier_method = "mint" (output: h1 to h15 OLS reconciled bootstrap samples)
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "mint" (output: h1 to h15 MinT reconciled bootstrap samples) 
 
 mint_fun_mfts <- function(kj)  
 {
-  dum = array(, dim = c(101, 168, (16-kj), 1000))
+  dum = array(0, dim = c(101, 168, (16-kj), 1000))
   for(ij in 1:101)
   {
     print(paste("age =", ij))
@@ -476,6 +467,8 @@ rm(cl)
 ##################################################
 # Function used to calculate mean interval scores
 ##################################################
+
+# Define a function to compute interval scores
 
 interval_score_BU_optim_mfts <- function(PI_val, data_series, series, fh, index, alpha = 0.8)
 {

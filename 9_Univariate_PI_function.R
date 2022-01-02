@@ -2,12 +2,17 @@
 # Construct univariate pointwise prediction intervals
 ######################################################
 
+library(demography)
+library(ftsa)
+
 # data_series: specific data series
 # series: total, female, male
 # fh: forecast horizon
 # nboot: number of bootstrap replication
 # alpha: nominal coverage probability
 # transformation: logit or log
+
+# Define a function for nonparametric bootstrap
 
 find_enlarge_val <- function(data_series, pcamethod = c("static", "dynamic"), series, fh = 1, nboot = 1000, alpha = 0.8, 
                              transformation = c("logit", "log"))
@@ -210,7 +215,7 @@ find_enlarge_val <- function(data_series, pcamethod = c("static", "dynamic"), se
     }
     
     C_0 = long_run_covariance_estimation(data_dum, H = 3, C0 = 3)
-    eigen_decomp = eigen(C_0$BT_FT_fix_C0)
+    eigen_decomp = eigen(C_0)
     ncomp = max(head(which(cumsum(eigen_decomp$values)/sum(eigen_decomp$values) >= 0.95),1), 2)
     
     dynamic_basis = as.matrix(eigen_decomp$vectors[,1:ncomp])

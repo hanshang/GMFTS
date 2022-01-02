@@ -2,6 +2,9 @@
 # Reconciliation of univariate point forecasts using the bottom-up and the optimal reconciliation methods
 ##########################################################################################################
 
+library(demography)
+library(ftsa)
+
 # female_data_raw: Female age-specific exposure to risk
 # male_data_raw: Male age-specific exposure to risk 
 # female_data_raw_rate: Female age-specific mortality rates (ind)
@@ -10,15 +13,175 @@
 # kj: forecast horizon
 # hier_method: bottom-up or optimal combination method
 
+# Define a point forecasts reconciliation function 
+BU_optim_hier <- function(total_data_raw_rate_region, female_data_raw_rate_region,
+                               male_data_raw_rate_region, female_data_raw_rate, male_data_raw_rate,
+                               total_data_raw_rate, age, kj, hier_method = c("BU","Ind", "comb_OLS", "comb_GLS", "mint"))
+{
+  hier_method = match.arg(hier_method)
+  
+  hier_rate = matrix(0,168,(16-kj)) # in total 168 series
+  # Level_0 (Total)
+  hier_rate[1,] = get(total_data_raw_rate[1])[kj,age,1:(16-kj)] # first arg: horizon; # third arg: number of forecasting years 
+  # Level_1 (Sex)
+  hier_rate[2,] = get(female_data_raw_rate[1])[kj,age,1:(16-kj)]
+  hier_rate[3,] = get(male_data_raw_rate[1])[kj,age,1:(16-kj)]
+  
+  # Level_2 (Region + Total, Female, Male)
+  for(iw in 1:8)
+  {
+    hier_rate[iw+3,]  = get(total_data_raw_rate_region[iw])[kj,age,1:(16-kj)]  
+    hier_rate[iw+11,] = get(female_data_raw_rate_region[iw])[kj,age,1:(16-kj)]
+    hier_rate[iw+19,] = get(male_data_raw_rate_region[iw])[kj,age,1:(16-kj)]
+  }
+  
+  # Level_3 (Prefecture + Total, Female, Male)
+  
+  for(iw in 2:48)
+  {
+    hier_rate[iw+26,] = get(total_data_raw_rate[iw])[kj,age,1:(16-kj)]
+  }  
+  for(iw in 2:48)
+  {
+    hier_rate[(2*iw+71),] = get(female_data_raw_rate[iw])[kj,age,1:(16-kj)]
+    hier_rate[(2*iw+72),] = get(male_data_raw_rate[iw])[kj,age,1:(16-kj)]   
+  }
+  
+  # forecast reconciliation via bottom-up, optimal combination or MinT methods
+  hier_fore   = matrix(0,168,(16-kj))
+  summing_mat = Smat_fun(kj = kj, age = age)
+  for(ik in 1:(16-kj))
+  {
+    hier = summing_mat[,,ik]
+    if(hier_method == "Ind")
+    {
+      hier_fore[,ik] = hier_rate[,ik]
+    }
+    if(hier_method == "BU")
+    {
+      hier_fore[,ik] = (hier %*% hier_rate[75:168,ik])
+    }
+    if(hier_method == "comb_OLS")
+    {
+      hier_fore[,ik] = hier %*% solve(t(hier) %*% hier) %*% t(hier) %*% hier_rate[,ik]
+    }
+    if(hier_method == "comb_GLS")
+    {
+      hier_fore[,ik] = hier %*% solve(t(hier) %*% solve(diag(rowSums(hier^2))) %*% hier) %*% t(hier) %*% solve(diag(rowSums(hier^2))) %*% hier_rate[,ik]
+    }
+    if(hier_method == "mint")
+    {
+      wh = wh_fun(kj = kj, age = age)
+      hier_fore[,ik] = hier %*% solve(t(hier) %*% solve(wh) %*% hier) %*% t(hier) %*% solve(wh) %*% hier_rate[,ik]
+    }
+  }
+  return(hier_fore)
+}
+
+# Define a function for computing reconciled errors
+
+BU_optim_err <- function(ik, hier_method, total_data_raw_rate_region, female_data_raw_rate_region,
+                         male_data_raw_rate_region, female_data_raw_rate, 
+                         male_data_raw_rate, total_data_raw_rate)
+{
+  me = ftsa:::me; mae = ftsa:::mae; rmse = ftsa:::rmse
+  BU_optim_hier_comb = array(0, dim = c(101,168,(16-ik)))
+  for(ik_age in 1:101)
+  {
+    BU_optim_hier_comb[ik_age,,] = BU_optim_hier(total_data_raw_rate_region, female_data_raw_rate_region,
+                                                      male_data_raw_rate_region,
+                                                      female_data_raw_rate, male_data_raw_rate, total_data_raw_rate,      
+                                                      age = ik_age, kj = ik, hier_method = hier_method)
+  }
+  
+  #####################################
+  # Errors, including ME, MAE and RMSE
+  #####################################
+  
+  # Level 0 (Total)
+  me_total_err    = me(BU_optim_hier_comb[,1,],   extract.years(get(state[1]), years = (2001+ik):2016)$rate$total)
+  mae_total_err   = mae(BU_optim_hier_comb[,1,],   extract.years(get(state[1]), years = (2001+ik):2016)$rate$total)
+  rmse_total_err  = rmse(BU_optim_hier_comb[,1,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$total)
+  
+  # Level 1 (Sex)
+  me_female_err  = me(BU_optim_hier_comb[,2,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$female)
+  me_male_err    = me(BU_optim_hier_comb[,3,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$male)
+  
+  mae_female_err = mae(BU_optim_hier_comb[,2,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$female)
+  mae_male_err   = mae(BU_optim_hier_comb[,3,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$male)
+  
+  rmse_female_err = rmse(BU_optim_hier_comb[,2,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$female)
+  rmse_male_err   = rmse(BU_optim_hier_comb[,3,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$male)
+  
+  # Level 2 (Region + Total, Female and Male)
+  me_total_R_err = me_female_R_err = me_male_R_err = mae_total_R_err = mae_female_R_err = mae_male_R_err = rmse_total_R_err = rmse_female_R_err = rmse_male_R_err = rep(0, 8)
+  for(iw in 1:8)
+  {
+    me_total_R_err[iw]  = me(BU_optim_hier_comb[,(iw+3),],  extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
+    me_female_R_err[iw] = me(BU_optim_hier_comb[,(iw+11),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$female)
+    me_male_R_err[iw]   = me(BU_optim_hier_comb[,(iw+19),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$male)
+    
+    mae_total_R_err[iw]  = mae(BU_optim_hier_comb[,(iw+3),],  extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
+    mae_female_R_err[iw] = mae(BU_optim_hier_comb[,(iw+11),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$female)
+    mae_male_R_err[iw]   = mae(BU_optim_hier_comb[,(iw+19),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$male)
+    
+    rmse_total_R_err[iw]  = rmse(BU_optim_hier_comb[,(iw+3),],  extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
+    rmse_female_R_err[iw] = rmse(BU_optim_hier_comb[,(iw+11),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$female)
+    rmse_male_R_err[iw]   = rmse(BU_optim_hier_comb[,(iw+19),], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$male)
+  }
+  
+  # Level 3 (Prefecture + Total)
+  
+  me_state_err = bottom_female_me =  bottom_male_me = mae_state_err = bottom_female_mae =  bottom_male_mae = rmse_state_err = bottom_female_rmse = bottom_male_rmse = rep(0, 47)
+  
+  for(iwk in 2:48)
+  {
+    me_state_err[iwk-1]    = me(BU_optim_hier_comb[,(iwk+26),],    extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$total)
+    mae_state_err[iwk-1]   = mae(BU_optim_hier_comb[,(iwk+26),],   extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$total)
+    rmse_state_err[iwk-1]  = rmse(BU_optim_hier_comb[,(iwk+26),],  extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$total)
+  }
+  
+  for(iwk in 2:48)
+  {
+    bottom_female_me[iwk-1]   = me(BU_optim_hier_comb[,(71+2*iwk),],    extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$female)
+    bottom_female_mae[iwk-1]  = mae(BU_optim_hier_comb[,(71+2*iwk),],   extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$female)
+    bottom_female_rmse[iwk-1] = rmse(BU_optim_hier_comb[,(71+2*iwk),],  extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$female)
+    
+    bottom_male_me[iwk-1]     = me(BU_optim_hier_comb[,(72+2*iwk),],    extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$male)
+    bottom_male_mae[iwk-1]    = mae(BU_optim_hier_comb[,(72+2*iwk),],   extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$male)
+    bottom_male_rmse[iwk-1]   = rmse(BU_optim_hier_comb[,(72+2*iwk),],  extract.years(get(state[iwk]), years = (2001+ik):2016)$rate$male)
+  }      
+  
+  return(list(me_total_err = me_total_err, me_female_err = me_female_err, 
+              me_male_err  = me_male_err,  me_total_R_err = me_total_R_err,
+              me_female_R_err = me_female_R_err, me_male_R_err = me_male_R_err,
+              me_state_err  = me_state_err, me_bottom_female_err = bottom_female_me, 
+              me_bottom_male_err = bottom_male_me, 
+              
+              mae_total_err = mae_total_err, mae_female_err = mae_female_err, 
+              mae_male_err  = mae_male_err,  mae_total_R_err = mae_total_R_err,
+              mae_female_R_err = mae_female_R_err, mae_male_R_err = mae_male_R_err,
+              mae_state_err  = mae_state_err, mae_bottom_female_err = bottom_female_mae, 
+              mae_bottom_male_err = bottom_male_mae, 
+              
+              rmse_total_err = rmse_total_err, rmse_female_err = rmse_female_err, 
+              rmse_male_err  = rmse_male_err,  
+              rmse_total_R_err = rmse_total_R_err,
+              rmse_female_R_err = rmse_female_R_err,
+              rmse_male_R_err = rmse_male_R_err,
+              rmse_state_err  = rmse_state_err,
+              rmse_bottom_female_err = bottom_female_rmse, rmse_bottom_male_err = bottom_male_rmse))
+}
+
 ########################################
 # Point forecast errors; fmethod = "BU" 
 ########################################
 
-# create storing objects:
+# Define variables for the Bottom-up reconciled forecasts
 
-Level_0_err_ind_dynamic     = Level_F_err_ind_dynamic       = Level_M_err_ind_dynamic       = matrix(,15,3)
-Level_T_R_err_ind_dynamic   = Level_F_R_err_ind_dynamic     = Level_M_R_err_ind_dynamic     = array(, dim = c(15,3,8))
-Level_State_err_ind_dynamic = Level_State_F_err_ind_dynamic = Level_State_M_err_ind_dynamic = array(, dim = c(47,15,3))
+Level_0_err_ind_dynamic     = Level_F_err_ind_dynamic       = Level_M_err_ind_dynamic       = matrix(0,15,3)
+Level_T_R_err_ind_dynamic   = Level_F_R_err_ind_dynamic     = Level_M_R_err_ind_dynamic     = array(0, dim = c(15,3,8))
+Level_State_err_ind_dynamic = Level_State_F_err_ind_dynamic = Level_State_M_err_ind_dynamic = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
@@ -92,20 +255,21 @@ colnames(BU_all_level_err_me_ind_dynamic) = colnames(BU_all_level_err_mae_ind_dy
 # Point forecast errors; fmethod = "comb_OLS" 
 ##############################################
 
-# create storing objects:
+# Define variables for the Optimal Combination (OLS) reconciled forecasts
 
-optim_Level_0_err_ind_dynamic = optim_Level_F_err_ind_dynamic = optim_Level_M_err_ind_dynamic  = matrix(,15,3)
-optim_Level_T_R_err_ind_dynamic = optim_Level_F_R_err_ind_dynamic = optim_Level_M_R_err_ind_dynamic = array(, dim = c(15,3,8))
-optim_Level_State_err_ind_dynamic = optim_Level_State_F_err_ind_dynamic = optim_Level_State_M_err_ind_dynamic = array(, dim = c(47,15,3))
+optim_Level_0_err_ind_dynamic = optim_Level_F_err_ind_dynamic = optim_Level_M_err_ind_dynamic  = matrix(0,15,3)
+optim_Level_T_R_err_ind_dynamic = optim_Level_F_R_err_ind_dynamic = optim_Level_M_R_err_ind_dynamic = array(0, dim = c(15,3,8))
+optim_Level_State_err_ind_dynamic = optim_Level_State_F_err_ind_dynamic = optim_Level_State_M_err_ind_dynamic = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
     dum = BU_optim_err(ik = ikw, hier_method = "comb_OLS", 
-                       total_data_raw_rate_region = ind_region_forc_total,
-                       female_data_raw_rate_region = ind_region_forc_female,
-                       male_data_raw_rate_region = ind_region_forc_male,
-                       female_data_raw_rate = ind_state_forc_female, 
-                       male_data_raw_rate = ind_state_forc_male, total_data_raw_rate = ind_state_forc_total)
+                       total_data_raw_rate_region = ind_dynamic_region_forc_total,
+                       female_data_raw_rate_region = ind_dynamic_region_forc_female,
+                       male_data_raw_rate_region = ind_dynamic_region_forc_male,
+                       female_data_raw_rate = ind_dynamic_state_forc_female, 
+                       male_data_raw_rate = ind_dynamic_state_forc_male, 
+                       total_data_raw_rate = ind_dynamic_state_forc_total)
   
     # Total + Sex
     
@@ -169,20 +333,21 @@ colnames(optim_all_level_err_me_ind_dynamic) = colnames(optim_all_level_err_mae_
 # Point forecast errors; fmethod = "comb_GLS" 
 ##############################################
 
-# create storing objects:
+# Define variables for the Optimal Combination (GLS) reconciled forecasts
 
-optim_GLS_Level_0_err_ind_dynamic = optim_GLS_Level_F_err_ind_dynamic = optim_GLS_Level_M_err_ind_dynamic  = matrix(,15,3)
-optim_GLS_Level_T_R_err_ind_dynamic = optim_GLS_Level_F_R_err_ind_dynamic = optim_GLS_Level_M_R_err_ind_dynamic = array(, dim = c(15,3,8))
-optim_GLS_Level_State_err_ind_dynamic = optim_GLS_Level_State_F_err_ind_dynamic = optim_GLS_Level_State_M_err_ind_dynamic = array(, dim = c(47,15,3))
+optim_GLS_Level_0_err_ind_dynamic = optim_GLS_Level_F_err_ind_dynamic = optim_GLS_Level_M_err_ind_dynamic  = matrix(0,15,3)
+optim_GLS_Level_T_R_err_ind_dynamic = optim_GLS_Level_F_R_err_ind_dynamic = optim_GLS_Level_M_R_err_ind_dynamic = array(0, dim = c(15,3,8))
+optim_GLS_Level_State_err_ind_dynamic = optim_GLS_Level_State_F_err_ind_dynamic = optim_GLS_Level_State_M_err_ind_dynamic = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
     dum = BU_optim_err(ik = ikw, hier_method = "comb_GLS", 
-                       total_data_raw_rate_region = ind_region_forc_total,
-                       female_data_raw_rate_region = ind_region_forc_female,
-                       male_data_raw_rate_region = ind_region_forc_male,
-                       female_data_raw_rate = ind_state_forc_female, 
-                       male_data_raw_rate = ind_state_forc_male, total_data_raw_rate = ind_state_forc_total)
+                       total_data_raw_rate_region = ind_dynamic_region_forc_total,
+                       female_data_raw_rate_region = ind_dynamic_region_forc_female,
+                       male_data_raw_rate_region = ind_dynamic_region_forc_male,
+                       female_data_raw_rate = ind_dynamic_state_forc_female, 
+                       male_data_raw_rate = ind_dynamic_state_forc_male, 
+                       total_data_raw_rate = ind_dynamic_state_forc_total)
   
     # Total + Sex
     
@@ -247,20 +412,21 @@ colnames(optim_GLS_all_level_err_me_ind_dynamic) = colnames(optim_GLS_all_level_
 # Point forecast errors; fmethod = "mint" 
 ##############################################
 
-# create storing objects:
+# Define variables for the Mint reconciled forecasts
 
-optim_mint_Level_0_err_ind_dynamic = optim_mint_Level_F_err_ind_dynamic = optim_mint_Level_M_err_ind_dynamic  = matrix(,15,3)
-optim_mint_Level_T_R_err_ind_dynamic = optim_mint_Level_F_R_err_ind_dynamic = optim_mint_Level_M_R_err_ind_dynamic = array(, dim = c(15,3,8))
-optim_mint_Level_State_err_ind_dynamic = optim_mint_Level_State_F_err_ind_dynamic = optim_mint_Level_State_M_err_ind_dynamic = array(, dim = c(47,15,3))
+optim_mint_Level_0_err_ind_dynamic = optim_mint_Level_F_err_ind_dynamic = optim_mint_Level_M_err_ind_dynamic  = matrix(0,15,3)
+optim_mint_Level_T_R_err_ind_dynamic = optim_mint_Level_F_R_err_ind_dynamic = optim_mint_Level_M_R_err_ind_dynamic = array(0, dim = c(15,3,8))
+optim_mint_Level_State_err_ind_dynamic = optim_mint_Level_State_F_err_ind_dynamic = optim_mint_Level_State_M_err_ind_dynamic = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
   dum = BU_optim_err(ik = ikw, hier_method = "mint", 
-                     total_data_raw_rate_region = ind_region_forc_total,
-                     female_data_raw_rate_region = ind_region_forc_female,
-                     male_data_raw_rate_region = ind_region_forc_male,
-                     female_data_raw_rate = ind_state_forc_female, 
-                     male_data_raw_rate = ind_state_forc_male, total_data_raw_rate = ind_state_forc_total)
+                     total_data_raw_rate_region = ind_dynamic_region_forc_total,
+                     female_data_raw_rate_region = ind_dynamic_region_forc_female,
+                     male_data_raw_rate_region = ind_dynamic_region_forc_male,
+                     female_data_raw_rate = ind_dynamic_state_forc_female, 
+                     male_data_raw_rate = ind_dynamic_state_forc_male, 
+                     total_data_raw_rate = ind_dynamic_state_forc_total)
   
   # Total + Sex
   
@@ -324,13 +490,13 @@ colnames(optim_mint_all_level_err_me_ind_dynamic) = colnames(optim_mint_all_leve
 # Summary of reconciled point forecasts
 ########################################
 
-point_accuracy_me_ind_dynamic   = cbind(ind_all_level_err_me,   BU_all_level_err_me_ind_dynamic,   optim_all_level_err_me_ind_dynamic,   optim_mint_all_level_err_me_ind_dynamic)
-point_accuracy_mae_ind_dynamic  = cbind(ind_all_level_err_mae,  BU_all_level_err_mae_ind_dynamic,  optim_all_level_err_mae_ind_dynamic,  optim_mint_all_level_err_mae_ind_dynamic)
-point_accuracy_rmse_ind_dynamic = cbind(ind_all_level_err_rmse, BU_all_level_err_rmse_ind_dynamic, optim_all_level_err_rmse_ind_dynamic, optim_mint_all_level_err_rmse_ind_dynamic)
+ind_point_accuracy_me_dynamic   = cbind(ind_dynamic_all_level_err_me,   BU_all_level_err_me_ind_dynamic,   optim_all_level_err_me_ind_dynamic,   optim_mint_all_level_err_me_ind_dynamic)
+ind_point_accuracy_mae_dynamic  = cbind(ind_dynamic_all_level_err_mae,  BU_all_level_err_mae_ind_dynamic,  optim_all_level_err_mae_ind_dynamic,  optim_mint_all_level_err_mae_ind_dynamic)
+ind_point_accuracy_rmse_dynamic = cbind(ind_dynamic_all_level_err_rmse, BU_all_level_err_rmse_ind_dynamic, optim_all_level_err_rmse_ind_dynamic, optim_mint_all_level_err_rmse_ind_dynamic)
 
-point_forecast_accuracy_me_ind_dynamic   = rbind(point_accuracy_me_ind_dynamic,   apply(point_accuracy_me_ind_dynamic,   2, mean), apply(point_accuracy_me_ind_dynamic,   2, median))
-point_forecast_accuracy_mae_ind_dynamic  = rbind(point_accuracy_mae_ind_dynamic,  apply(point_accuracy_mae_ind_dynamic,  2, mean), apply(point_accuracy_mae_ind_dynamic,  2, median))
-point_forecast_accuracy_rmse_ind_dynamic = rbind(point_accuracy_rmse_ind_dynamic, apply(point_accuracy_rmse_ind_dynamic, 2, mean), apply(point_accuracy_rmse_ind_dynamic, 2, median))
+ind_point_forecast_accuracy_me_dynamic   = rbind(ind_point_accuracy_me_dynamic,   apply(ind_point_accuracy_me_dynamic,   2, mean), apply(ind_point_accuracy_me_dynamic,   2, median))
+ind_point_forecast_accuracy_mae_dynamic  = rbind(ind_point_accuracy_mae_dynamic,  apply(ind_point_accuracy_mae_dynamic,  2, mean), apply(ind_point_accuracy_mae_dynamic,  2, median))
+ind_point_forecast_accuracy_rmse_dynamic = rbind(ind_point_accuracy_rmse_dynamic, apply(ind_point_accuracy_rmse_dynamic, 2, mean), apply(ind_point_accuracy_rmse_dynamic, 2, median))
 
-rownames(point_forecast_accuracy_me_ind_dynamic) = rownames(point_forecast_accuracy_mae_ind_dynamic) = rownames(point_forecast_accuracy_rmse_ind_dynamic) = c(1:15, "Mean", "Median")
+rownames(ind_point_forecast_accuracy_me_dynamic) = rownames(ind_point_forecast_accuracy_mae_dynamic) = rownames(ind_point_forecast_accuracy_rmse_dynamic) = c(1:15, "Mean", "Median")
 

@@ -2,6 +2,9 @@
 # Point forecasts gender-specific series 
 #########################################
 
+library(demography)
+library(ftsa)
+
 # state level training residuals
 
 mfts_gender_state_train_residual_female = c("mfts_gender_Japan_train_residual_female", "mfts_gender_Hokkaido_train_residual_female", "mfts_gender_Aomori_train_residual_female", 
@@ -240,6 +243,8 @@ mfts_gender_region_rmse_male = c("mfts_gender_region_R1_rmse_male", "mfts_gender
 # Multivariate point forecast of female and male series by prefectures
 #######################################################################
 
+# Define a function for multivariate FTS forecasting
+
 mfts_gender_back_test <- function(pcamethod = c("static", "dynamic"), year_horizon)
 {
   forecast_year = (year_horizon + 1)
@@ -326,9 +331,12 @@ mfts_gender_back_test <- function(pcamethod = c("static", "dynamic"), year_horiz
               state_prefecture_male_rmse = state_prefecture_male_rmse, train_residual_male = train_residual_male))
 }
 
-# Point forecasts of gender-specific series at prefecture level
+# Point forecasts of gender-specific series at prefecture level (Please be aware that this part of computation takes a long time to execute.)
+dum_state_gender = mfts_gender_back_test(pcamethod = c("dynamic"), year_horizon = 15) 
 
-dum_state_gender = mfts_gender_back_test(pcamethod = c("dynamic"), year_horizon = 15) # save(dum_state_gender, file = "gender-specific_state_mfts_2.R")
+# save results
+save(dum_state_gender, file = "gender-specific_state_mfts.RData")
+
 mfts_gender_state_me_female = dum_state_gender$state_prefecture_female_me
 mfts_gender_state_mae_female = dum_state_gender$state_prefecture_female_mae
 mfts_gender_state_rmse_female = dum_state_gender$state_prefecture_female_rmse

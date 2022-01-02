@@ -2,6 +2,9 @@
 # constructing multivariate pointwise prediction intervals
 ###########################################################
 
+library(demography)
+library(ftsa)
+
 # data_series: specific data series
 # series: total, female, male
 # fh: forecast horizon
@@ -12,6 +15,8 @@
 #########################
 # female and male series
 #########################
+
+# Define a function for nonparametric bootstrap of gender-specific series
 
 find_enlarge_val_mfts <- function(data_series, pcamethod = c("static", "dynamic"), fh = 1, nboot = 1000, alpha = 0.8)
 {
@@ -86,7 +91,7 @@ find_enlarge_val_mfts <- function(data_series, pcamethod = c("static", "dynamic"
     data_dum = comb_object
     
     C_0 = long_run_covariance_estimation(data_dum, H = 3, C0 = 3)
-    eigen_decomp = eigen(C_0$BT_FT_fix_C0)
+    eigen_decomp = eigen(C_0)
     ncomp_comb = head(which(cumsum(eigen_decomp$values)/sum(eigen_decomp$values) >= 0.95),1)
     
     if(ncomp_comb == 1)
@@ -178,7 +183,7 @@ find_enlarge_val_mfts <- function(data_series, pcamethod = c("static", "dynamic"
   err_male   = holdout_val_male - fore_curve_male
   
   # bootstrap error function
-  err_boot_fore_female = err_boot_fore_male = matrix(, nrow(err_female), nboot)
+  err_boot_fore_female = err_boot_fore_male = matrix(0, nrow(err_female), nboot)
   for(ij in 1:nboot)
   {
     err_boot_fore_female[,ij] = err_female[, sample(1:ncol(err_female), 1, replace = TRUE)]
@@ -206,6 +211,8 @@ find_enlarge_val_mfts <- function(data_series, pcamethod = c("static", "dynamic"
 ################################
 # Prefecture level total series
 ################################
+
+# Define a function for nonparametric bootstrap of prefecture total series
 
 PI_total_state_mfts <- function(dat, pcamethod = c("static", "dynamic"), dat_unsmooth, fh = 1, nboot = 1000, alpha = 0.8)
 {  
@@ -268,7 +275,7 @@ PI_total_state_mfts <- function(dat, pcamethod = c("static", "dynamic"), dat_uns
     data_dum = comb_object
     
     C_0 = long_run_covariance_estimation(data_dum, H = 3, C0 = 3)
-    eigen_decomp = eigen(C_0$BT_FT_fix_C0)
+    eigen_decomp = eigen(C_0)
     ncomp_comb = head(which(cumsum(eigen_decomp$values)/sum(eigen_decomp$values) >= 0.95),1)
     
     if(ncomp_comb == 1)
@@ -391,6 +398,8 @@ PI_total_state_mfts <- function(dat, pcamethod = c("static", "dynamic"), dat_uns
 # Region level total series
 ###########################
 
+# Define a function for nonparametric bootstrap of region total series
+
 PI_total_region_mfts <- function(dat,  pcamethod = c("static", "dynamic"), dat_unsmooth, fh = 1, nboot = 1000, alpha = 0.8)
 {
   # select ncomp_comb based on 95% of total variation; use all available data
@@ -453,7 +462,7 @@ PI_total_region_mfts <- function(dat,  pcamethod = c("static", "dynamic"), dat_u
     data_dum = comb_object
     
     C_0 = long_run_covariance_estimation(data_dum, H = 3, C0 = 3)
-    eigen_decomp = eigen(C_0$BT_FT_fix_C0)
+    eigen_decomp = eigen(C_0)
     ncomp_comb = head(which(cumsum(eigen_decomp$values)/sum(eigen_decomp$values) >= 0.95),1)
     
     if(ncomp_comb == 1)

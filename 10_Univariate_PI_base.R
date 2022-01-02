@@ -2,12 +2,15 @@
 # Calculate prediction intervals for the univariate forecasting method without reconciliation
 ##############################################################################################
 
+library(demography)
+library(ftsa)
+
 # data_series: specific data series
 # series: total, female, male
 # fh: forecast horizon
 # nboot: number of bootstrap replications
 
-# find bootstrapped prediction intervals
+# Define a function to find pointwise prediction intervals by bootstrap
 
 PI_fh <- function(data_series, pcamethod = c("static", "dynamic"), series, fh, nboot = 1000)
 {
@@ -21,10 +24,10 @@ PI_fh <- function(data_series, pcamethod = c("static", "dynamic"), series, fh, n
   return(list(PI_boot = PI_boot))
 }
 
-# calculate interval scores for the bootstrapped PIs
+# Define a function to calculate interval scores for the bootstrapped PIs
 
-# PI_val: one- to 15-step-ahead prediction intervals
-# alpha: nominal coverage probability (alpha here is equivalent to 1 - significance level)
+## PI_val: one- to 15-step-ahead prediction intervals
+## alpha: nominal coverage probability (alpha here is equivalent to 1 - significance level)
 
 interval_score <- function(PI_val, data_series, series, fh, alpha = 0.8)
 {
@@ -77,7 +80,7 @@ interval_score <- function(PI_val, data_series, series, fh, alpha = 0.8)
 # Japan (country level)
 ########################
 
-# pointwise prediction interval for all 15 forecast horizons
+# Compute pointwise prediction intervals for all 15 forecast horizons
 
 library(doParallel)
 
@@ -92,7 +95,7 @@ Japan_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Japan_female_dynamic = interval_score_Japan_male_dynamic = interval_score_Japan_total_dynamic = vector(,15)
+interval_score_Japan_female_dynamic = interval_score_Japan_male_dynamic = interval_score_Japan_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Japan_female_dynamic[ij] = interval_score(PI_val = Japan_female_fh_PI_dynamic, 
@@ -131,7 +134,7 @@ Hokkaido_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hokkaido_female_dynamic = interval_score_Hokkaido_male_dynamic = interval_score_Hokkaido_total_dynamic = vector(,15)
+interval_score_Hokkaido_female_dynamic = interval_score_Hokkaido_male_dynamic = interval_score_Hokkaido_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Hokkaido_female_dynamic[ij] = interval_score(PI_val = Hokkaido_female_fh_PI_dynamic, 
@@ -165,7 +168,7 @@ Aomori_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ft
 
 # compute interval scores for all forecast horizons
 
-interval_score_Aomori_female_dynamic = interval_score_Aomori_male_dynamic = interval_score_Aomori_total_dynamic = vector(,15)
+interval_score_Aomori_female_dynamic = interval_score_Aomori_male_dynamic = interval_score_Aomori_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Aomori_female_dynamic[ij] = interval_score(PI_val = Aomori_female_fh_PI_dynamic, 
@@ -200,7 +203,7 @@ Iwate_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Iwate_female_dynamic = interval_score_Iwate_male_dynamic = interval_score_Iwate_total_dynamic = vector(,15)
+interval_score_Iwate_female_dynamic = interval_score_Iwate_male_dynamic = interval_score_Iwate_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Iwate_female_dynamic[ij] = interval_score(PI_val = Iwate_female_fh_PI_dynamic, 
@@ -234,7 +237,7 @@ Miyagi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ft
 
 # compute interval scores for all forecast horizons
 
-interval_score_Miyagi_female_dynamic = interval_score_Miyagi_male_dynamic = interval_score_Miyagi_total_dynamic = vector(,15)
+interval_score_Miyagi_female_dynamic = interval_score_Miyagi_male_dynamic = interval_score_Miyagi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Miyagi_female_dynamic[ij] = interval_score(PI_val = Miyagi_female_fh_PI_dynamic, 
@@ -268,7 +271,7 @@ Akita_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Akita_female_dynamic = interval_score_Akita_male_dynamic = interval_score_Akita_total_dynamic = vector(,15)
+interval_score_Akita_female_dynamic = interval_score_Akita_male_dynamic = interval_score_Akita_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Akita_female_dynamic[ij] = interval_score(PI_val = Akita_female_fh_PI_dynamic, 
@@ -302,7 +305,7 @@ Yamagata_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamagata_female_dynamic = interval_score_Yamagata_male_dynamic = interval_score_Yamagata_total_dynamic = vector(,15)
+interval_score_Yamagata_female_dynamic = interval_score_Yamagata_male_dynamic = interval_score_Yamagata_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Yamagata_female_dynamic[ij] = interval_score(PI_val = Yamagata_female_fh_PI_dynamic, 
@@ -336,7 +339,7 @@ Fukushima_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukushima_female_dynamic = interval_score_Fukushima_male_dynamic = interval_score_Fukushima_total_dynamic = vector(,15)
+interval_score_Fukushima_female_dynamic = interval_score_Fukushima_male_dynamic = interval_score_Fukushima_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Fukushima_female_dynamic[ij] = interval_score(PI_val = Fukushima_female_fh_PI_dynamic, 
@@ -370,7 +373,7 @@ Ibaraki_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ibaraki_female_dynamic = interval_score_Ibaraki_male_dynamic = interval_score_Ibaraki_total_dynamic = vector(,15)
+interval_score_Ibaraki_female_dynamic = interval_score_Ibaraki_male_dynamic = interval_score_Ibaraki_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Ibaraki_female_dynamic[ij] = interval_score(PI_val = Ibaraki_female_fh_PI_dynamic, 
@@ -404,7 +407,7 @@ Tochigi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tochigi_female_dynamic = interval_score_Tochigi_male_dynamic = interval_score_Tochigi_total_dynamic = vector(,15)
+interval_score_Tochigi_female_dynamic = interval_score_Tochigi_male_dynamic = interval_score_Tochigi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Tochigi_female_dynamic[ij] = interval_score(PI_val = Tochigi_female_fh_PI_dynamic, 
@@ -438,7 +441,7 @@ Gunma_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Gunma_female_dynamic = interval_score_Gunma_male_dynamic = interval_score_Gunma_total_dynamic = vector(,15)
+interval_score_Gunma_female_dynamic = interval_score_Gunma_male_dynamic = interval_score_Gunma_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Gunma_female_dynamic[ij] = interval_score(PI_val = Gunma_female_fh_PI_dynamic, 
@@ -472,7 +475,7 @@ Saitama_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Saitama_female_dynamic = interval_score_Saitama_male_dynamic = interval_score_Saitama_total_dynamic = vector(,15)
+interval_score_Saitama_female_dynamic = interval_score_Saitama_male_dynamic = interval_score_Saitama_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Saitama_female_dynamic[ij] = interval_score(PI_val = Saitama_female_fh_PI_dynamic, 
@@ -506,7 +509,7 @@ Chiba_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Chiba_female_dynamic = interval_score_Chiba_male_dynamic = interval_score_Chiba_total_dynamic = vector(,15)
+interval_score_Chiba_female_dynamic = interval_score_Chiba_male_dynamic = interval_score_Chiba_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Chiba_female_dynamic[ij] = interval_score(PI_val = Chiba_female_fh_PI_dynamic, 
@@ -540,7 +543,7 @@ Tokyo_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tokyo_female_dynamic = interval_score_Tokyo_male_dynamic = interval_score_Tokyo_total_dynamic = vector(,15)
+interval_score_Tokyo_female_dynamic = interval_score_Tokyo_male_dynamic = interval_score_Tokyo_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Tokyo_female_dynamic[ij] = interval_score(PI_val = Tokyo_female_fh_PI_dynamic, 
@@ -574,7 +577,7 @@ Kanagawa_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kanagawa_female_dynamic = interval_score_Kanagawa_male_dynamic = interval_score_Kanagawa_total_dynamic = vector(,15)
+interval_score_Kanagawa_female_dynamic = interval_score_Kanagawa_male_dynamic = interval_score_Kanagawa_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kanagawa_female_dynamic[ij] = interval_score(PI_val = Kanagawa_female_fh_PI_dynamic, 
@@ -608,7 +611,7 @@ Niigata_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Niigata_female_dynamic = interval_score_Niigata_male_dynamic = interval_score_Niigata_total_dynamic = vector(,15)
+interval_score_Niigata_female_dynamic = interval_score_Niigata_male_dynamic = interval_score_Niigata_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Niigata_female_dynamic[ij] = interval_score(PI_val = Niigata_female_fh_PI_dynamic, 
@@ -642,7 +645,7 @@ Toyama_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ft
 
 # compute interval scores for all forecast horizons
 
-interval_score_Toyama_female_dynamic = interval_score_Toyama_male_dynamic = interval_score_Toyama_total_dynamic = vector(,15)
+interval_score_Toyama_female_dynamic = interval_score_Toyama_male_dynamic = interval_score_Toyama_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Toyama_female_dynamic[ij] = interval_score(PI_val = Toyama_female_fh_PI_dynamic, 
@@ -676,7 +679,7 @@ Ishikawa_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ishikawa_female_dynamic = interval_score_Ishikawa_male_dynamic = interval_score_Ishikawa_total_dynamic = vector(,15)
+interval_score_Ishikawa_female_dynamic = interval_score_Ishikawa_male_dynamic = interval_score_Ishikawa_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Ishikawa_female_dynamic[ij] = interval_score(PI_val = Ishikawa_female_fh_PI_dynamic, 
@@ -710,7 +713,7 @@ Fukui_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukui_female_dynamic = interval_score_Fukui_male_dynamic = interval_score_Fukui_total_dynamic = vector(,15)
+interval_score_Fukui_female_dynamic = interval_score_Fukui_male_dynamic = interval_score_Fukui_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Fukui_female_dynamic[ij] = interval_score(PI_val = Fukui_female_fh_PI_dynamic, 
@@ -744,7 +747,7 @@ Yamanashi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamanashi_female_dynamic = interval_score_Yamanashi_male_dynamic = interval_score_Yamanashi_total_dynamic = vector(,15)
+interval_score_Yamanashi_female_dynamic = interval_score_Yamanashi_male_dynamic = interval_score_Yamanashi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Yamanashi_female_dynamic[ij] = interval_score(PI_val = Yamanashi_female_fh_PI_dynamic, 
@@ -778,7 +781,7 @@ Nagano_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ft
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nagano_female_dynamic = interval_score_Nagano_male_dynamic = interval_score_Nagano_total_dynamic = vector(,15)
+interval_score_Nagano_female_dynamic = interval_score_Nagano_male_dynamic = interval_score_Nagano_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Nagano_female_dynamic[ij] = interval_score(PI_val = Nagano_female_fh_PI_dynamic, 
@@ -812,7 +815,7 @@ Gifu_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa
 
 # compute interval scores for all forecast horizons
 
-interval_score_Gifu_female_dynamic = interval_score_Gifu_male_dynamic = interval_score_Gifu_total_dynamic = vector(,15)
+interval_score_Gifu_female_dynamic = interval_score_Gifu_male_dynamic = interval_score_Gifu_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Gifu_female_dynamic[ij] = interval_score(PI_val = Gifu_female_fh_PI_dynamic, 
@@ -846,7 +849,7 @@ Shizuoka_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shizuoka_female_dynamic = interval_score_Shizuoka_male_dynamic = interval_score_Shizuoka_total_dynamic = vector(,15)
+interval_score_Shizuoka_female_dynamic = interval_score_Shizuoka_male_dynamic = interval_score_Shizuoka_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Shizuoka_female_dynamic[ij] = interval_score(PI_val = Shizuoka_female_fh_PI_dynamic, 
@@ -880,7 +883,7 @@ Aichi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Aichi_female_dynamic = interval_score_Aichi_male_dynamic = interval_score_Aichi_total_dynamic = vector(,15)
+interval_score_Aichi_female_dynamic = interval_score_Aichi_male_dynamic = interval_score_Aichi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Aichi_female_dynamic[ij] = interval_score(PI_val = Aichi_female_fh_PI_dynamic, 
@@ -914,7 +917,7 @@ Mie_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"
 
 # compute interval scores for all forecast horizons
 
-interval_score_Mie_female_dynamic = interval_score_Mie_male_dynamic = interval_score_Mie_total_dynamic = vector(,15)
+interval_score_Mie_female_dynamic = interval_score_Mie_male_dynamic = interval_score_Mie_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Mie_female_dynamic[ij] = interval_score(PI_val = Mie_female_fh_PI_dynamic, 
@@ -948,7 +951,7 @@ Shiga_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shiga_female_dynamic = interval_score_Shiga_male_dynamic = interval_score_Shiga_total_dynamic = vector(,15)
+interval_score_Shiga_female_dynamic = interval_score_Shiga_male_dynamic = interval_score_Shiga_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Shiga_female_dynamic[ij] = interval_score(PI_val = Shiga_female_fh_PI_dynamic, 
@@ -982,7 +985,7 @@ Kyoto_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kyoto_female_dynamic = interval_score_Kyoto_male_dynamic = interval_score_Kyoto_total_dynamic = vector(,15)
+interval_score_Kyoto_female_dynamic = interval_score_Kyoto_male_dynamic = interval_score_Kyoto_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kyoto_female_dynamic[ij] = interval_score(PI_val = Kyoto_female_fh_PI_dynamic, 
@@ -1016,7 +1019,7 @@ Osaka_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Osaka_female_dynamic = interval_score_Osaka_male_dynamic = interval_score_Osaka_total_dynamic = vector(,15)
+interval_score_Osaka_female_dynamic = interval_score_Osaka_male_dynamic = interval_score_Osaka_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Osaka_female_dynamic[ij] = interval_score(PI_val = Osaka_female_fh_PI_dynamic, 
@@ -1050,7 +1053,7 @@ Hyogo_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hyogo_female_dynamic = interval_score_Hyogo_male_dynamic = interval_score_Hyogo_total_dynamic = vector(,15)
+interval_score_Hyogo_female_dynamic = interval_score_Hyogo_male_dynamic = interval_score_Hyogo_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Hyogo_female_dynamic[ij] = interval_score(PI_val = Hyogo_female_fh_PI_dynamic, 
@@ -1084,7 +1087,7 @@ Nara_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nara_female_dynamic = interval_score_Nara_male_dynamic = interval_score_Nara_total_dynamic = vector(,15)
+interval_score_Nara_female_dynamic = interval_score_Nara_male_dynamic = interval_score_Nara_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Nara_female_dynamic[ij] = interval_score(PI_val = Nara_female_fh_PI_dynamic, 
@@ -1119,7 +1122,7 @@ Wakayama_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Wakayama_female_dynamic = interval_score_Wakayama_male_dynamic = interval_score_Wakayama_total_dynamic = vector(,15)
+interval_score_Wakayama_female_dynamic = interval_score_Wakayama_male_dynamic = interval_score_Wakayama_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Wakayama_female_dynamic[ij] = interval_score(PI_val = Wakayama_female_fh_PI_dynamic, 
@@ -1154,7 +1157,7 @@ Tottori_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tottori_female_dynamic = interval_score_Tottori_male_dynamic = interval_score_Tottori_total_dynamic = vector(,15)
+interval_score_Tottori_female_dynamic = interval_score_Tottori_male_dynamic = interval_score_Tottori_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Tottori_female_dynamic[ij] = interval_score(PI_val = Tottori_female_fh_PI_dynamic, 
@@ -1188,7 +1191,7 @@ Shimane_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shimane_female_dynamic = interval_score_Shimane_male_dynamic = interval_score_Shimane_total_dynamic = vector(,15)
+interval_score_Shimane_female_dynamic = interval_score_Shimane_male_dynamic = interval_score_Shimane_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Shimane_female_dynamic[ij] = interval_score(PI_val = Shimane_female_fh_PI_dynamic, 
@@ -1222,7 +1225,7 @@ Okayama_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Okayama_female_dynamic = interval_score_Okayama_male_dynamic = interval_score_Okayama_total_dynamic = vector(,15)
+interval_score_Okayama_female_dynamic = interval_score_Okayama_male_dynamic = interval_score_Okayama_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Okayama_female_dynamic[ij] = interval_score(PI_val = Okayama_female_fh_PI_dynamic, 
@@ -1256,7 +1259,7 @@ Hiroshima_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hiroshima_female_dynamic = interval_score_Hiroshima_male_dynamic = interval_score_Hiroshima_total_dynamic = vector(,15)
+interval_score_Hiroshima_female_dynamic = interval_score_Hiroshima_male_dynamic = interval_score_Hiroshima_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Hiroshima_female_dynamic[ij] = interval_score(PI_val = Hiroshima_female_fh_PI_dynamic, 
@@ -1290,7 +1293,7 @@ Yamaguchi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamaguchi_female_dynamic = interval_score_Yamaguchi_male_dynamic = interval_score_Yamaguchi_total_dynamic = vector(,15)
+interval_score_Yamaguchi_female_dynamic = interval_score_Yamaguchi_male_dynamic = interval_score_Yamaguchi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Yamaguchi_female_dynamic[ij] = interval_score(PI_val = Yamaguchi_female_fh_PI_dynamic, 
@@ -1324,7 +1327,7 @@ Tokushima_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tokushima_female_dynamic = interval_score_Tokushima_male_dynamic = interval_score_Tokushima_total_dynamic = vector(,15)
+interval_score_Tokushima_female_dynamic = interval_score_Tokushima_male_dynamic = interval_score_Tokushima_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Tokushima_female_dynamic[ij] = interval_score(PI_val = Tokushima_female_fh_PI_dynamic, 
@@ -1358,7 +1361,7 @@ Kagawa_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ft
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kagawa_female_dynamic = interval_score_Kagawa_male_dynamic = interval_score_Kagawa_total_dynamic = vector(,15)
+interval_score_Kagawa_female_dynamic = interval_score_Kagawa_male_dynamic = interval_score_Kagawa_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kagawa_female_dynamic[ij] = interval_score(PI_val = Kagawa_female_fh_PI_dynamic, 
@@ -1392,7 +1395,7 @@ Ehime_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ehime_female_dynamic = interval_score_Ehime_male_dynamic = interval_score_Ehime_total_dynamic = vector(,15)
+interval_score_Ehime_female_dynamic = interval_score_Ehime_male_dynamic = interval_score_Ehime_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Ehime_female_dynamic[ij] = interval_score(PI_val = Ehime_female_fh_PI_dynamic, 
@@ -1426,7 +1429,7 @@ Kochi_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "fts
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kochi_female_dynamic = interval_score_Kochi_male_dynamic = interval_score_Kochi_total_dynamic = vector(,15)
+interval_score_Kochi_female_dynamic = interval_score_Kochi_male_dynamic = interval_score_Kochi_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kochi_female_dynamic[ij] = interval_score(PI_val = Kochi_female_fh_PI_dynamic, 
@@ -1460,7 +1463,7 @@ Fukuoka_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukuoka_female_dynamic = interval_score_Fukuoka_male_dynamic = interval_score_Fukuoka_total_dynamic = vector(,15)
+interval_score_Fukuoka_female_dynamic = interval_score_Fukuoka_male_dynamic = interval_score_Fukuoka_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Fukuoka_female_dynamic[ij] = interval_score(PI_val = Fukuoka_female_fh_PI_dynamic, 
@@ -1494,7 +1497,7 @@ Saga_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa
 
 # compute interval scores for all forecast horizons
 
-interval_score_Saga_female_dynamic = interval_score_Saga_male_dynamic = interval_score_Saga_total_dynamic = vector(,15)
+interval_score_Saga_female_dynamic = interval_score_Saga_male_dynamic = interval_score_Saga_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Saga_female_dynamic[ij] = interval_score(PI_val = Saga_female_fh_PI_dynamic, 
@@ -1528,7 +1531,7 @@ Nagasaki_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nagasaki_female_dynamic = interval_score_Nagasaki_male_dynamic = interval_score_Nagasaki_total_dynamic = vector(,15)
+interval_score_Nagasaki_female_dynamic = interval_score_Nagasaki_male_dynamic = interval_score_Nagasaki_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Nagasaki_female_dynamic[ij] = interval_score(PI_val = Nagasaki_female_fh_PI_dynamic, 
@@ -1562,7 +1565,7 @@ Kumamoto_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kumamoto_female_dynamic = interval_score_Kumamoto_male_dynamic = interval_score_Kumamoto_total_dynamic = vector(,15)
+interval_score_Kumamoto_female_dynamic = interval_score_Kumamoto_male_dynamic = interval_score_Kumamoto_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kumamoto_female_dynamic[ij] = interval_score(PI_val = Kumamoto_female_fh_PI_dynamic, 
@@ -1596,7 +1599,7 @@ Oita_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa
 
 # compute interval scores for all forecast horizons
 
-interval_score_Oita_female_dynamic = interval_score_Oita_male_dynamic = interval_score_Oita_total_dynamic = vector(,15)
+interval_score_Oita_female_dynamic = interval_score_Oita_male_dynamic = interval_score_Oita_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Oita_female_dynamic[ij] = interval_score(PI_val = Oita_female_fh_PI_dynamic, 
@@ -1630,7 +1633,7 @@ Miyazaki_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "
 
 # compute interval scores for all forecast horizons
 
-interval_score_Miyazaki_female_dynamic = interval_score_Miyazaki_male_dynamic = interval_score_Miyazaki_total_dynamic = vector(,15)
+interval_score_Miyazaki_female_dynamic = interval_score_Miyazaki_male_dynamic = interval_score_Miyazaki_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Miyazaki_female_dynamic[ij] = interval_score(PI_val = Miyazaki_female_fh_PI_dynamic, 
@@ -1665,7 +1668,7 @@ Kagoshima_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", 
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kagoshima_female_dynamic = interval_score_Kagoshima_male_dynamic = interval_score_Kagoshima_total_dynamic = vector(,15)
+interval_score_Kagoshima_female_dynamic = interval_score_Kagoshima_male_dynamic = interval_score_Kagoshima_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Kagoshima_female_dynamic[ij] = interval_score(PI_val = Kagoshima_female_fh_PI_dynamic, 
@@ -1699,7 +1702,7 @@ Okinawa_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "f
 
 # compute interval scores for all forecast horizons
 
-interval_score_Okinawa_female_dynamic = interval_score_Okinawa_male_dynamic = interval_score_Okinawa_total_dynamic = vector(,15)
+interval_score_Okinawa_female_dynamic = interval_score_Okinawa_male_dynamic = interval_score_Okinawa_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_Okinawa_female_dynamic[ij] = interval_score(PI_val = Okinawa_female_fh_PI_dynamic, 
@@ -1725,25 +1728,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R1_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R1, series = "female", fh = ik)
+R1_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R1, series = "female", fh = ik)
 
-R1_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R1, series = "male",   fh = ik)
+R1_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R1, series = "male",   fh = ik)
 
-R1_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R1, series = "total",  fh = ik)
+R1_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R1, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R1_female_dynamic = interval_score_R1_male_dynamic = interval_score_R1_total_dynamic = vector(,15)
+interval_score_R1_female_dynamic = interval_score_R1_male_dynamic = interval_score_R1_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R1_female_dynamic[ij] = interval_score(PI_val = R1_female_fh_PI_dynamic, 
-                                                data_series = ind_R1, series = "female", fh = ij)
+                                                data_series = mfts_R1, series = "female", fh = ij)
   
   interval_score_R1_male_dynamic[ij] = interval_score(PI_val = R1_male_fh_PI_dynamic, 
-                                              data_series = ind_R1, series = "male", fh = ij)
+                                              data_series = mfts_R1, series = "male", fh = ij)
   
   interval_score_R1_total_dynamic[ij] = interval_score(PI_val = R1_total_fh_PI_dynamic, 
-                                               data_series = ind_R1, series = "total", fh = ij)
+                                               data_series = mfts_R1, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1755,25 +1758,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R2_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R2, series = "female", fh = ik)
+R2_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R2, series = "female", fh = ik)
 
-R2_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R2, series = "male",   fh = ik)
+R2_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R2, series = "male",   fh = ik)
 
-R2_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R2, series = "total",  fh = ik)
+R2_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R2, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R2_female_dynamic = interval_score_R2_male_dynamic = interval_score_R2_total_dynamic = vector(,15)
+interval_score_R2_female_dynamic = interval_score_R2_male_dynamic = interval_score_R2_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R2_female_dynamic[ij] = interval_score(PI_val = R2_female_fh_PI_dynamic, 
-                                                data_series = ind_R2, series = "female", fh = ij)
+                                                data_series = mfts_R2, series = "female", fh = ij)
   
   interval_score_R2_male_dynamic[ij] = interval_score(PI_val = R2_male_fh_PI_dynamic, 
-                                              data_series = ind_R2, series = "male", fh = ij)
+                                              data_series = mfts_R2, series = "male", fh = ij)
   
   interval_score_R2_total_dynamic[ij] = interval_score(PI_val = R2_total_fh_PI_dynamic, 
-                                               data_series = ind_R2, series = "total", fh = ij)
+                                               data_series = mfts_R2, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1785,25 +1788,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R3_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R3, series = "female", fh = ik)
+R3_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R3, series = "female", fh = ik)
 
-R3_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R3, series = "male",   fh = ik)
+R3_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R3, series = "male",   fh = ik)
 
-R3_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R3, series = "total",  fh = ik)
+R3_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R3, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R3_female_dynamic = interval_score_R3_male_dynamic = interval_score_R3_total_dynamic = vector(,15)
+interval_score_R3_female_dynamic = interval_score_R3_male_dynamic = interval_score_R3_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R3_female_dynamic[ij] = interval_score(PI_val = R3_female_fh_PI_dynamic, 
-                                                data_series = ind_R3, series = "female", fh = ij)
+                                                data_series = mfts_R3, series = "female", fh = ij)
   
   interval_score_R3_male_dynamic[ij] = interval_score(PI_val = R3_male_fh_PI_dynamic, 
-                                              data_series = ind_R3, series = "male", fh = ij)
+                                              data_series = mfts_R3, series = "male", fh = ij)
   
   interval_score_R3_total_dynamic[ij] = interval_score(PI_val = R3_total_fh_PI_dynamic, 
-                                               data_series = ind_R3, series = "total", fh = ij)
+                                               data_series = mfts_R3, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1815,25 +1818,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R4_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R4, series = "female", fh = ik)
+R4_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R4, series = "female", fh = ik)
 
-R4_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R4, series = "male",   fh = ik)
+R4_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R4, series = "male",   fh = ik)
 
-R4_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R4, series = "total",  fh = ik)
+R4_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R4, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R4_female_dynamic = interval_score_R4_male_dynamic = interval_score_R4_total_dynamic = vector(,15)
+interval_score_R4_female_dynamic = interval_score_R4_male_dynamic = interval_score_R4_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R4_female_dynamic[ij] = interval_score(PI_val = R4_female_fh_PI_dynamic, 
-                                                data_series = ind_R4, series = "female", fh = ij)
+                                                data_series = mfts_R4, series = "female", fh = ij)
   
   interval_score_R4_male_dynamic[ij] = interval_score(PI_val = R4_male_fh_PI_dynamic, 
-                                              data_series = ind_R4, series = "male", fh = ij)
+                                              data_series = mfts_R4, series = "male", fh = ij)
   
   interval_score_R4_total_dynamic[ij] = interval_score(PI_val = R4_total_fh_PI_dynamic, 
-                                               data_series = ind_R4, series = "total", fh = ij)
+                                               data_series = mfts_R4, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1845,25 +1848,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R5_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R5, series = "female", fh = ik)
+R5_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R5, series = "female", fh = ik)
 
-R5_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R5, series = "male",   fh = ik)
+R5_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R5, series = "male",   fh = ik)
 
-R5_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R5, series = "total",  fh = ik)
+R5_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R5, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R5_female_dynamic = interval_score_R5_male_dynamic = interval_score_R5_total_dynamic = vector(,15)
+interval_score_R5_female_dynamic = interval_score_R5_male_dynamic = interval_score_R5_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R5_female_dynamic[ij] = interval_score(PI_val = R5_female_fh_PI_dynamic, 
-                                                data_series = ind_R5, series = "female", fh = ij)
+                                                data_series = mfts_R5, series = "female", fh = ij)
   
   interval_score_R5_male_dynamic[ij] = interval_score(PI_val = R5_male_fh_PI_dynamic, 
-                                              data_series = ind_R5, series = "male", fh = ij)
+                                              data_series = mfts_R5, series = "male", fh = ij)
   
   interval_score_R5_total_dynamic[ij] = interval_score(PI_val = R5_total_fh_PI_dynamic, 
-                                               data_series = ind_R5, series = "total", fh = ij)
+                                               data_series = mfts_R5, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1875,25 +1878,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R6_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R6, series = "female", fh = ik)
+R6_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R6, series = "female", fh = ik)
 
-R6_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R6, series = "male",   fh = ik)
+R6_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R6, series = "male",   fh = ik)
 
-R6_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R6, series = "total",  fh = ik)
+R6_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R6, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R6_female_dynamic = interval_score_R6_male_dynamic = interval_score_R6_total_dynamic = vector(,15)
+interval_score_R6_female_dynamic = interval_score_R6_male_dynamic = interval_score_R6_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R6_female_dynamic[ij] = interval_score(PI_val = R6_female_fh_PI_dynamic, 
-                                                data_series = ind_R6, series = "female", fh = ij)
+                                                data_series = mfts_R6, series = "female", fh = ij)
   
   interval_score_R6_male_dynamic[ij] = interval_score(PI_val = R6_male_fh_PI_dynamic, 
-                                              data_series = ind_R6, series = "male", fh = ij)
+                                              data_series = mfts_R6, series = "male", fh = ij)
   
   interval_score_R6_total_dynamic[ij] = interval_score(PI_val = R6_total_fh_PI_dynamic, 
-                                               data_series = ind_R6, series = "total", fh = ij)
+                                               data_series = mfts_R6, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1905,25 +1908,25 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R7_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R7, series = "female", fh = ik)
+R7_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R7, series = "female", fh = ik)
 
-R7_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R7, series = "male",   fh = ik)
+R7_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R7, series = "male",   fh = ik)
 
-R7_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R7, series = "total",  fh = ik)
+R7_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R7, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R7_female_dynamic = interval_score_R7_male_dynamic = interval_score_R7_total_dynamic = vector(,15)
+interval_score_R7_female_dynamic = interval_score_R7_male_dynamic = interval_score_R7_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R7_female_dynamic[ij] = interval_score(PI_val = R7_female_fh_PI_dynamic, 
-                                                data_series = ind_R7, series = "female", fh = ij)
+                                                data_series = mfts_R7, series = "female", fh = ij)
   
   interval_score_R7_male_dynamic[ij] = interval_score(PI_val = R7_male_fh_PI_dynamic, 
-                                              data_series = ind_R7, series = "male", fh = ij)
+                                              data_series = mfts_R7, series = "male", fh = ij)
   
   interval_score_R7_total_dynamic[ij] = interval_score(PI_val = R7_total_fh_PI_dynamic, 
-                                               data_series = ind_R7, series = "total", fh = ij)
+                                               data_series = mfts_R7, series = "total", fh = ij)
   print(ij)
 }
 
@@ -1935,30 +1938,32 @@ rm(cl)
 cl <- makeCluster(15)  
 registerDoParallel(cl)
 
-R8_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R8, series = "female", fh = ik)
+R8_female_fh_PI_dynamic = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R8, series = "female", fh = ik)
 
-R8_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R8, series = "male",   fh = ik)
+R8_male_fh_PI_dynamic   = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R8, series = "male",   fh = ik)
 
-R8_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = ind_R8, series = "total",  fh = ik)
+R8_total_fh_PI_dynamic  = foreach(ik = 1:15, .packages = c("demography", "ftsa"))  %dopar% PI_fh(data_series = mfts_R8, series = "total",  fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R8_female_dynamic = interval_score_R8_male_dynamic = interval_score_R8_total_dynamic = vector(,15)
+interval_score_R8_female_dynamic = interval_score_R8_male_dynamic = interval_score_R8_total_dynamic = rep(0, 15)
 for(ij in 1:15)
 {
   interval_score_R8_female_dynamic[ij] = interval_score(PI_val = R8_female_fh_PI_dynamic, 
-                                                data_series = ind_R8, series = "female", fh = ij)
+                                                data_series = mfts_R8, series = "female", fh = ij)
   
   interval_score_R8_male_dynamic[ij] = interval_score(PI_val = R8_male_fh_PI_dynamic, 
-                                              data_series = ind_R8, series = "male", fh = ij)
+                                              data_series = mfts_R8, series = "male", fh = ij)
   
   interval_score_R8_total_dynamic[ij] = interval_score(PI_val = R8_total_fh_PI_dynamic, 
-                                               data_series = ind_R8, series = "total", fh = ij)
+                                               data_series = mfts_R8, series = "total", fh = ij)
   print(ij)
 }
 
 stopCluster(cl)
 rm(cl)
+
+# save results
 
 for (i in 2:48)
 {
@@ -1993,6 +1998,8 @@ save(R5_male_fh_PI_dynamic, file = "R5_male_fh_PI_dynamic.RData")
 save(R6_male_fh_PI_dynamic, file = "R6_male_fh_PI_dynamic.RData")
 save(R7_male_fh_PI_dynamic, file = "R7_male_fh_PI_dynamic.RData")
 save(R8_male_fh_PI_dynamic, file = "R8_male_fh_PI_dynamic.RData")
+
+# remove stored objects to release memory
 
 for(i in 1:8)
 {

@@ -2,15 +2,19 @@
 # Calculate mean interval scores for the univariate forecasting with bottom-up method
 ######################################################################################
 
+library(demography)
+library(ftsa)
+
 # PI_val = BU_optim_hier_comb_dynamic: All-level lower and upper bounds of forecast mortality rates
 # data_series: specific data series
 # series: female, male or total
 # fh: forecast horizon
 # index: corresponding index in the hierarchy
 
-# Japan + Sex
+# Compute mean interval scores for the univariate forecasting method
+## Japan + Sex
 
-BU_interval_score_Japan_total_dynamic = BU_interval_score_Japan_female_dynamic = BU_interval_score_Japan_male_dynamic = vector(,15)
+BU_interval_score_Japan_total_dynamic = BU_interval_score_Japan_female_dynamic = BU_interval_score_Japan_male_dynamic = rep(0, 15)
 for(ik in 1:15)
 {
     # Level 0
@@ -31,33 +35,33 @@ for(ik in 1:15)
 # Region total
 
 BU_interval_score_R1_total_dynamic = BU_interval_score_R2_total_dynamic = BU_interval_score_R3_total_dynamic = BU_interval_score_R4_total_dynamic = 
-BU_interval_score_R5_total_dynamic = BU_interval_score_R6_total_dynamic = BU_interval_score_R7_total_dynamic = BU_interval_score_R8_total_dynamic = vector(,15)
+BU_interval_score_R5_total_dynamic = BU_interval_score_R6_total_dynamic = BU_interval_score_R7_total_dynamic = BU_interval_score_R8_total_dynamic = rep(0, 15)
 for(ik in 1:15)
 {
     # Level 2
     
-    BU_interval_score_R1_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R1, series = "total",
+    BU_interval_score_R1_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R1, series = "total",
                                                              fh = ik, index = 4)
     
-    BU_interval_score_R2_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R2, series = "total",
+    BU_interval_score_R2_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R2, series = "total",
                                                              fh = ik, index = 5)
     
-    BU_interval_score_R3_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R3, series = "total",
+    BU_interval_score_R3_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R3, series = "total",
                                                              fh = ik, index = 6)
     
-    BU_interval_score_R4_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R4, series = "total",
+    BU_interval_score_R4_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R4, series = "total",
                                                              fh = ik, index = 7)
     
-    BU_interval_score_R5_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R5, series = "total",
+    BU_interval_score_R5_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R5, series = "total",
                                                              fh = ik, index = 8)
     
-    BU_interval_score_R6_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R6, series = "total",
+    BU_interval_score_R6_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R6, series = "total",
                                                              fh = ik, index = 9)
     
-    BU_interval_score_R7_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R7, series = "total",
+    BU_interval_score_R7_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R7, series = "total",
                                                              fh = ik, index = 10)
     
-    BU_interval_score_R8_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R8, series = "total",
+    BU_interval_score_R8_total_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R8, series = "total",
                                                              fh = ik, index = 11)
     print(ik)
 }
@@ -67,60 +71,60 @@ for(ik in 1:15)
 BU_interval_score_R1_female_dynamic = BU_interval_score_R2_female_dynamic = BU_interval_score_R3_female_dynamic = BU_interval_score_R4_female_dynamic = 
 BU_interval_score_R5_female_dynamic = BU_interval_score_R6_female_dynamic = BU_interval_score_R7_female_dynamic = BU_interval_score_R8_female_dynamic = 
 BU_interval_score_R1_male_dynamic   = BU_interval_score_R2_male_dynamic   = BU_interval_score_R3_male_dynamic   = BU_interval_score_R4_male_dynamic   = 
-BU_interval_score_R5_male_dynamic   = BU_interval_score_R6_male_dynamic   = BU_interval_score_R7_male_dynamic   = BU_interval_score_R8_male_dynamic   = vector(,15)
+BU_interval_score_R5_male_dynamic   = BU_interval_score_R6_male_dynamic   = BU_interval_score_R7_male_dynamic   = BU_interval_score_R8_male_dynamic   = rep(0, 15)
 
 for(ik in 1:15)
 {
     # Level 3 (female)
     
-    BU_interval_score_R1_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R1, series = "female",
+    BU_interval_score_R1_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R1, series = "female",
                                                               fh = ik, index = 12)
     
-    BU_interval_score_R2_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R2, series = "female",
+    BU_interval_score_R2_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R2, series = "female",
                                                               fh = ik, index = 13)
     
-    BU_interval_score_R3_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R3, series = "female",
+    BU_interval_score_R3_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R3, series = "female",
                                                               fh = ik, index = 14)
     
-    BU_interval_score_R4_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R4, series = "female",
+    BU_interval_score_R4_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R4, series = "female",
                                                               fh = ik, index = 15)
     
-    BU_interval_score_R5_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R5, series = "female",
+    BU_interval_score_R5_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R5, series = "female",
                                                               fh = ik, index = 16)
     
-    BU_interval_score_R6_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R6, series = "female",
+    BU_interval_score_R6_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R6, series = "female",
                                                               fh = ik, index = 17)
     
-    BU_interval_score_R7_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R7, series = "female",
+    BU_interval_score_R7_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R7, series = "female",
                                                               fh = ik, index = 18)
     
-    BU_interval_score_R8_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R8, series = "female",
+    BU_interval_score_R8_female_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R8, series = "female",
                                                               fh = ik, index = 19)
     
     # Level 3 (male)
     
-    BU_interval_score_R1_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R1, series = "male",
+    BU_interval_score_R1_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R1, series = "male",
                                                             fh = ik, index = 20)
     
-    BU_interval_score_R2_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R2, series = "male",
+    BU_interval_score_R2_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R2, series = "male",
                                                             fh = ik, index = 21)
     
-    BU_interval_score_R3_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R3, series = "male",
+    BU_interval_score_R3_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R3, series = "male",
                                                             fh = ik, index = 22)
     
-    BU_interval_score_R4_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R4, series = "male",
+    BU_interval_score_R4_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R4, series = "male",
                                                             fh = ik, index = 23)
     
-    BU_interval_score_R5_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R5, series = "male",
+    BU_interval_score_R5_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R5, series = "male",
                                                             fh = ik, index = 24)
     
-    BU_interval_score_R6_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R6, series = "male",
+    BU_interval_score_R6_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R6, series = "male",
                                                             fh = ik, index = 25)
     
-    BU_interval_score_R7_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R7, series = "male",
+    BU_interval_score_R7_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R7, series = "male",
                                                             fh = ik, index = 26)
     
-    BU_interval_score_R8_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = ind_R8, series = "male",
+    BU_interval_score_R8_male_dynamic[ik] = interval_score_BU_optim(PI_val = BU_optim_hier_comb_dynamic, data_series = mfts_R8, series = "male",
                                                             fh = ik, index = 27)
     print(ik)
 }
@@ -138,7 +142,7 @@ BU_interval_score_P29_total_dynamic = BU_interval_score_P30_total_dynamic = BU_i
 BU_interval_score_P33_total_dynamic = BU_interval_score_P34_total_dynamic = BU_interval_score_P35_total_dynamic = BU_interval_score_P36_total_dynamic = 
 BU_interval_score_P37_total_dynamic = BU_interval_score_P38_total_dynamic = BU_interval_score_P39_total_dynamic = BU_interval_score_P40_total_dynamic = 
 BU_interval_score_P41_total_dynamic = BU_interval_score_P42_total_dynamic = BU_interval_score_P43_total_dynamic = BU_interval_score_P44_total_dynamic = 
-BU_interval_score_P45_total_dynamic = BU_interval_score_P46_total_dynamic = BU_interval_score_P47_total_dynamic = vector(,15)
+BU_interval_score_P45_total_dynamic = BU_interval_score_P46_total_dynamic = BU_interval_score_P47_total_dynamic = rep(0, 15)
 
 for(ik in 1:15)
 {
@@ -298,7 +302,7 @@ BU_interval_score_P29_female_dynamic = BU_interval_score_P30_female_dynamic = BU
 BU_interval_score_P33_female_dynamic = BU_interval_score_P34_female_dynamic = BU_interval_score_P35_female_dynamic = BU_interval_score_P36_female_dynamic = 
 BU_interval_score_P37_female_dynamic = BU_interval_score_P38_female_dynamic = BU_interval_score_P39_female_dynamic = BU_interval_score_P40_female_dynamic = 
 BU_interval_score_P41_female_dynamic = BU_interval_score_P42_female_dynamic = BU_interval_score_P43_female_dynamic = BU_interval_score_P44_female_dynamic = 
-BU_interval_score_P45_female_dynamic = BU_interval_score_P46_female_dynamic = BU_interval_score_P47_female_dynamic = vector(,15)
+BU_interval_score_P45_female_dynamic = BU_interval_score_P46_female_dynamic = BU_interval_score_P47_female_dynamic = rep(0, 15)
 
 for(ik in 1:15)
 {
@@ -456,7 +460,7 @@ BU_interval_score_P29_male_dynamic = BU_interval_score_P30_male_dynamic = BU_int
 BU_interval_score_P33_male_dynamic = BU_interval_score_P34_male_dynamic = BU_interval_score_P35_male_dynamic = BU_interval_score_P36_male_dynamic = 
 BU_interval_score_P37_male_dynamic = BU_interval_score_P38_male_dynamic = BU_interval_score_P39_male_dynamic = BU_interval_score_P40_male_dynamic = 
 BU_interval_score_P41_male_dynamic = BU_interval_score_P42_male_dynamic = BU_interval_score_P43_male_dynamic = BU_interval_score_P44_male_dynamic = 
-BU_interval_score_P45_male_dynamic = BU_interval_score_P46_male_dynamic = BU_interval_score_P47_male_dynamic = vector(,15)
+BU_interval_score_P45_male_dynamic = BU_interval_score_P46_male_dynamic = BU_interval_score_P47_male_dynamic = rep(0, 15)
 
 for(ik in 1:15)
 {
@@ -655,6 +659,7 @@ BU_interval_score_all_dynamic = cbind(BU_interval_score_Level_0_dynamic, BU_inte
 BU_interval_score_all_stats_dynamic = rbind(BU_interval_score_all_dynamic, colMeans(BU_interval_score_all_dynamic), apply(BU_interval_score_all_dynamic, 2, median))
 colnames(BU_interval_score_all_stats_dynamic) = c("Level 0", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5")
 rownames(BU_interval_score_all_stats_dynamic) = c(1:15,"Mean","Median")
+
 
 # Save stored objects and release momory
 save(PI_prefecture_h1to15, file = "PI_prefecture_h1to15.RData")

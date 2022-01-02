@@ -2,112 +2,16 @@
 # All-level bootstrapped base forecasts (B = 1000) using univariate forecasting method
 #######################################################################################
 
-# fh: forecast horizon
+library(demography)
+library(ftsa)
 
-PI_prefecture <- function(fh)
-{
-    prefecture_fh_PI = array(, dim = c(101, (16-fh), 168, 1000))
-    for(ij in 1:1000)
-    {
-        prefecture_fh_PI[,,,ij] = exp(cbind(Japan_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            
-                                            Japan_female_fh_PI[[fh]]$PI_boot[,ij,], Japan_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            
-                                            R1_total_fh_PI[[fh]]$PI_boot[,ij,], R2_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R3_total_fh_PI[[fh]]$PI_boot[,ij,], R4_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R5_total_fh_PI[[fh]]$PI_boot[,ij,], R6_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R7_total_fh_PI[[fh]]$PI_boot[,ij,], R8_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            
-                                            R1_female_fh_PI[[fh]]$PI_boot[,ij,], R2_female_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R3_female_fh_PI[[fh]]$PI_boot[,ij,], R4_female_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R5_female_fh_PI[[fh]]$PI_boot[,ij,], R6_female_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R7_female_fh_PI[[fh]]$PI_boot[,ij,], R8_female_fh_PI[[fh]]$PI_boot[,ij,],
-                                            
-                                            R1_male_fh_PI[[fh]]$PI_boot[,ij,], R2_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R3_male_fh_PI[[fh]]$PI_boot[,ij,], R4_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R5_male_fh_PI[[fh]]$PI_boot[,ij,], R6_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            R7_male_fh_PI[[fh]]$PI_boot[,ij,], R8_male_fh_PI[[fh]]$PI_boot[,ij,],
-          
-                                            Hokkaido_total_fh_PI[[fh]]$PI_boot[,ij,],   Aomori_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Iwate_total_fh_PI[[fh]]$PI_boot[,ij,],      Miyagi_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Akita_total_fh_PI[[fh]]$PI_boot[,ij,],      Yamagata_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Fukushima_total_fh_PI[[fh]]$PI_boot[,ij,],  Ibaraki_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tochigi_total_fh_PI[[fh]]$PI_boot[,ij,],    Gunma_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Saitama_total_fh_PI[[fh]]$PI_boot[,ij,],    Chiba_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tokyo_total_fh_PI[[fh]]$PI_boot[,ij,],      Kanagawa_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Niigata_total_fh_PI[[fh]]$PI_boot[,ij,],    Toyama_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Ishikawa_total_fh_PI[[fh]]$PI_boot[,ij,],   Fukui_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Yamanashi_total_fh_PI[[fh]]$PI_boot[,ij,],  Nagano_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Gifu_total_fh_PI[[fh]]$PI_boot[,ij,],       Shizuoka_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Aichi_total_fh_PI[[fh]]$PI_boot[,ij,],      Mie_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Shiga_total_fh_PI[[fh]]$PI_boot[,ij,],      Kyoto_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Osaka_total_fh_PI[[fh]]$PI_boot[,ij,],      Hyogo_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Nara_total_fh_PI[[fh]]$PI_boot[,ij,],       Wakayama_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tottori_total_fh_PI[[fh]]$PI_boot[,ij,],    Shimane_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Okayama_total_fh_PI[[fh]]$PI_boot[,ij,],    Hiroshima_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Yamaguchi_total_fh_PI[[fh]]$PI_boot[,ij,],  Tokushima_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kagawa_total_fh_PI[[fh]]$PI_boot[,ij,],     Ehime_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kochi_total_fh_PI[[fh]]$PI_boot[,ij,],      Fukuoka_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Saga_total_fh_PI[[fh]]$PI_boot[,ij,],       Nagasaki_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kumamoto_total_fh_PI[[fh]]$PI_boot[,ij,],   Oita_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Miyazaki_total_fh_PI[[fh]]$PI_boot[,ij,],   Kagoshima_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Okinawa_total_fh_PI[[fh]]$PI_boot[,ij,],
-                                            
-                                            Hokkaido_female_fh_PI[[fh]]$PI_boot[,ij,],  Hokkaido_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Aomori_female_fh_PI[[fh]]$PI_boot[,ij,],    Aomori_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Iwate_female_fh_PI[[fh]]$PI_boot[,ij,],     Iwate_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Miyagi_female_fh_PI[[fh]]$PI_boot[,ij,],    Miyagi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Akita_female_fh_PI[[fh]]$PI_boot[,ij,],     Akita_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Yamagata_female_fh_PI[[fh]]$PI_boot[,ij,],  Yamagata_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Fukushima_female_fh_PI[[fh]]$PI_boot[,ij,], Fukushima_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Ibaraki_female_fh_PI[[fh]]$PI_boot[,ij,],   Ibaraki_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tochigi_female_fh_PI[[fh]]$PI_boot[,ij,],   Tochigi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Gunma_female_fh_PI[[fh]]$PI_boot[,ij,],     Gunma_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Saitama_female_fh_PI[[fh]]$PI_boot[,ij,],   Saitama_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Chiba_female_fh_PI[[fh]]$PI_boot[,ij,],     Chiba_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tokyo_female_fh_PI[[fh]]$PI_boot[,ij,],     Tokyo_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kanagawa_female_fh_PI[[fh]]$PI_boot[,ij,],  Kanagawa_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Niigata_female_fh_PI[[fh]]$PI_boot[,ij,],   Niigata_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Toyama_female_fh_PI[[fh]]$PI_boot[,ij,],    Toyama_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Ishikawa_female_fh_PI[[fh]]$PI_boot[,ij,],  Ishikawa_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Fukui_female_fh_PI[[fh]]$PI_boot[,ij,],     Fukui_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Yamanashi_female_fh_PI[[fh]]$PI_boot[,ij,], Yamanashi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Nagano_female_fh_PI[[fh]]$PI_boot[,ij,],    Nagano_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Gifu_female_fh_PI[[fh]]$PI_boot[,ij,],      Gifu_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Shizuoka_female_fh_PI[[fh]]$PI_boot[,ij,],  Shizuoka_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Aichi_female_fh_PI[[fh]]$PI_boot[,ij,],     Aichi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Mie_female_fh_PI[[fh]]$PI_boot[,ij,],       Mie_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Shiga_female_fh_PI[[fh]]$PI_boot[,ij,],     Shiga_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kyoto_female_fh_PI[[fh]]$PI_boot[,ij,],     Kyoto_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Osaka_female_fh_PI[[fh]]$PI_boot[,ij,],     Osaka_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Hyogo_female_fh_PI[[fh]]$PI_boot[,ij,],     Hyogo_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Nara_female_fh_PI[[fh]]$PI_boot[,ij,],      Nara_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Wakayama_female_fh_PI[[fh]]$PI_boot[,ij,],  Wakayama_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tottori_female_fh_PI[[fh]]$PI_boot[,ij,],   Tottori_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Shimane_female_fh_PI[[fh]]$PI_boot[,ij,],   Shimane_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Okayama_female_fh_PI[[fh]]$PI_boot[,ij,],   Okayama_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Hiroshima_female_fh_PI[[fh]]$PI_boot[,ij,], Hiroshima_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Yamaguchi_female_fh_PI[[fh]]$PI_boot[,ij,], Yamaguchi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Tokushima_female_fh_PI[[fh]]$PI_boot[,ij,], Tokushima_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kagawa_female_fh_PI[[fh]]$PI_boot[,ij,],    Kagawa_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Ehime_female_fh_PI[[fh]]$PI_boot[,ij,],     Ehime_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kochi_female_fh_PI[[fh]]$PI_boot[,ij,],     Kochi_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Fukuoka_female_fh_PI[[fh]]$PI_boot[,ij,],   Fukuoka_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Saga_female_fh_PI[[fh]]$PI_boot[,ij,],      Saga_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Nagasaki_female_fh_PI[[fh]]$PI_boot[,ij,],  Nagasaki_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kumamoto_female_fh_PI[[fh]]$PI_boot[,ij,],  Kumamoto_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Oita_female_fh_PI[[fh]]$PI_boot[,ij,],      Oita_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Miyazaki_female_fh_PI[[fh]]$PI_boot[,ij,],  Miyazaki_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Kagoshima_female_fh_PI[[fh]]$PI_boot[,ij,], Kagoshima_male_fh_PI[[fh]]$PI_boot[,ij,],
-                                            Okinawa_female_fh_PI[[fh]]$PI_boot[,ij,],   Okinawa_male_fh_PI[[fh]]$PI_boot[,ij,]))
-    }
-    return(prefecture_fh_PI)
-}
+# Define a function to compute bootstrapped base forecasts
 
+## fh: forecast horizon
 
 PI_prefecture_dynamic <- function(fh)
 {
-  prefecture_fh_PI_dynamic = array(, dim = c(101, (16-fh), 168, 1000))
+  prefecture_fh_PI_dynamic = array(0, dim = c(101, (16-fh), 168, 1000))
   for(ij in 1:1000)
   {
     prefecture_fh_PI_dynamic[,,,ij] = exp(cbind(Japan_total_fh_PI_dynamic[[fh]]$PI_boot[,ij,],
@@ -206,7 +110,7 @@ PI_prefecture_dynamic <- function(fh)
 }
 
 ############################################
-# Save previous results and  release memory
+# Save previous results and release memory
 ############################################
 
 for (i in 1:48)
@@ -250,13 +154,15 @@ PI_prefecture_h1to15_dynamic[[15]] = PI_prefecture_dynamic(fh = 15)
 # All-level bootstrapped grouped forecasts
 ###########################################
 
-# kj: forecast horizon from h = 1 to 15
-# age: age indexes from 1 to 101 (ages 0 to 100)
+# Define a functino to reconcile pointwise interval forecasts
+
+## kj: forecast horizon from h = 1 to 15
+## age: age indexes from 1 to 101 (ages 0 to 100)
 
 BU_optim_hier_PI_dynamic <- function(kj, age, hier_method = c("BU", "comb_OLS", "mint"))
 {
     hier_method = match.arg(hier_method)
-    hier_fore = array(, dim = c(168, (16-kj), 1000))
+    hier_fore = array(0, dim = c(168, (16-kj), 1000))
     
     # Summing matrix for kj horizon at a given age
     
@@ -292,11 +198,12 @@ BU_optim_hier_PI_dynamic <- function(kj, age, hier_method = c("BU", "comb_OLS", 
     return(hier_fore)
 }
 
-# hier_method = "BU" (output: h1 to h15 BU reconciled bootstrap samples)
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "BU" (output: h1 to h15 BU reconciled bootstrap samples)
 
 BU_fun <- function(kj)
 {
-    dum = array(, dim = c(101, 168, (16-kj), 1000))
+    dum = array(0, dim = c(101, 168, (16-kj), 1000))
     for(ij in 1:101)
     {
         dum[ij,,,] = BU_optim_hier_PI_dynamic(kj = kj, age = ij)
@@ -326,12 +233,12 @@ for(ik in 1:15)
 }
 save(BU_optim_hier_comb_dynamic, file = "BU_optim_hier_comb_dynamic.RData")
 
-
-# hier_method = "comb_OLS" (output: h1 to h15 OLS reconciled bootstrap samples) 
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "comb_OLS" (output: h1 to h15 OLS reconciled bootstrap samples) 
 
 OLS_fun <- function(kj)  
 {
-    dum = array(, dim = c(101, 168, (16-kj), 1000))
+    dum = array(0, dim = c(101, 168, (16-kj), 1000))
     for(ij in 1:101)
     {
         dum[ij,,,] = BU_optim_hier_PI_dynamic(kj = kj, age = ij, hier_method = "comb_OLS")
@@ -349,7 +256,8 @@ OLS_hier_comb = foreach(kj = 1:2) %dopar% OLS_fun(kj = kj)
 stopCluster(cl)
 rm(cl)
 
-# Computation without parallel
+# Altervatively, compute reconciled interval forecasts without using parallel (recommended method for PC with less than 64 GB of memory but very time consuming)
+
 library(MASS)
 OLS_hier_comb_dynamic = list()
 for(kj in 1:15)
@@ -358,19 +266,15 @@ for(kj in 1:15)
 }
 
 save(OLS_hier_comb_dynamic, file = "OLS_hier_comb_dynamic_1to8.RData")
-
-for(kj in 9:15)
-{
-  OLS_hier_comb_dynamic[[kj]] = OLS_fun(kj = kj)
-}
-
 save(OLS_hier_comb_dynamic, file = "OLS_hier_comb_dynamic.RData")
 save(PI_prefecture_h1to15_dynamic, file = "PI_prefecture_h1to15_dynamic.RData")
-# hier_method = "mint" (output: h1 to h15 MinT reconciled bootstrap samples) 
+
+# Define a function to enable parallel computation of interval forecasts reconciliation
+## hier_method = "mint" (output: h1 to h15 MinT reconciled bootstrap samples) 
 
 mint_fun_dynamic <- function(kj)  
 {
-  dum = array(, dim = c(101, 168, (16-kj), 1000))
+  dum = array(0, dim = c(101, 168, (16-kj), 1000))
   for(ij in 1:101)
   {
     dum[ij,,,] = BU_optim_hier_PI_dynamic(kj = kj, age = ij, hier_method = "mint")
@@ -378,7 +282,7 @@ mint_fun_dynamic <- function(kj)
   return(dum)    
 }
 
-# Computation without parallel
+# Altervatively, compute reconciled interval forecasts without using parallel (recommended method for PC with less than 64 GB of memory but very time consuming)
 library(MASS)
 mint_hier_comb_dynamic = list()
 for(kj in 1:15)
@@ -413,9 +317,12 @@ save(mint_hier_comb_3_dynamic, file = "mint_hier_comb_3_dynamic.RData")
 
 mint_hier_comb_dynamic = c(mint_hier_comb_1_dynamic, mint_hier_comb_2_dynamic, mint_hier_comb_3_dynamic)
 save(mint_hier_comb_dynamic, file = "mint_hier_comb_dynamic.RData")
+
 ##################################################
 # Function used to calculate mean interval scores
 ##################################################
+
+# Define a function to compute interval scores
 
 interval_score_BU_optim <- function(PI_val, data_series, series, fh, index, alpha = 0.8)
 {

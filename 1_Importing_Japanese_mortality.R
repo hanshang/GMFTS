@@ -3,6 +3,9 @@
 #######################
 
 library(demography)
+library(ftsa)
+
+# Define variable names for national and subnational mortality series
 
 state = c("Japan", "Hokkaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamagata", "Fukushima", "Ibaraki",  "Tochigi", "Gunma", "Saitama",  
           "Chiba", "Tokyo", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi",    
@@ -26,24 +29,19 @@ state_smooth = c("Japan_smooth", "Hokkaido_smooth", "Aomori_smooth", "Iwate_smoo
 # read data from Japanese Mortality Database
 #############################################
 
+# Define a function to download age-specific mortality rates from the Japanese Mortality Database
+
 read.jpn <- function (region,  label = region) 
 {
-	path <- paste("http://www.ipss.go.jp/p-toukei/JMD/", region, "/STATS/",   "Mx_1x1.txt", sep = "")
-	txt <- RCurl::getURL(path)
-  	con <- textConnection(txt)
-  	mx <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
-            TRUE)
-  	close(con)
+	  path_death <-paste("https://www.ipss.go.jp/p-toukei/JMD/", region, "/STATS/", "Mx_1x1.txt", sep="")
+  	mx <- try(read.csv(url(path_death), skip = 2, header = TRUE, sep = "", na.strings = "."),  TRUE)
   	if (class(mx) == "try-error") 
     	stop("Connection error at www.mortality.org. Please check username, password and country label.")
-  	path <- paste("http://www.ipss.go.jp/p-toukei/JMD/", region, "/STATS/",   "Exposures_1x1.txt", sep = "")
-	txt <- RCurl::getURL(path)
-  	con <- textConnection(txt)
-  	pop <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
-             TRUE)
-  	close(con)
+  	path_pop <-  paste("https://www.ipss.go.jp/p-toukei/JMD/", region, "/STATS/", "Exposures_1x1.txt", sep="")
+  	pop <- try(read.csv(url(path_pop), skip = 2, header = TRUE, sep = "", na.strings = "."), TRUE)
   	if (class(pop) == "try-error") 
     	stop("Exposures file not found at www.mortality.org")
+
   	obj <- list(type = "mortality", label = label, lambda = 0)
   	obj$year <- sort(unique(mx[, 1]))
   	n <- length(obj$year)
@@ -54,20 +52,20 @@ read.jpn <- function (region,  label = region)
   	obj$rate <- obj$pop <- list()
   	for (i in 1:n.mort) 
   	{
-    	obj$rate[[i]] <- matrix(mx[, i + 2], nrow = m, ncol = n)
+    	obj$rate[[i]] <- matrix(as.numeric(mx[, i + 2]), nrow = m, ncol = n)
 	    obj$rate[[i]][obj$rate[[i]] < 0] <- NA
     	obj$pop[[i]] <- matrix(pop[, i + 2], nrow = m, ncol = n)
 	    obj$pop[[i]][obj$pop[[i]] < 0] <- NA
     	dimnames(obj$rate[[i]]) <- dimnames(obj$pop[[i]]) <- list(obj$age, obj$year)
   	}
   	names(obj$pop) = (names(obj$rate) <- tolower(mnames))
-  	obj$age <- as.numeric(as.character(obj$age))
+  	obj$age <- c(as.numeric(obj$age[1:110]), 110)
   	if (is.na(obj$age[m])) 
     	obj$age[m] <- 2 * obj$age[m - 1] - obj$age[m - 2]
   	return(structure(obj, class = "demogdata"))
 }
 
-# mortality rates before smoothing, 0 to 100
+# Read in raw mortality rates, consider ages between 0--100
 
 Japan     = extract.years(extract.ages(read.jpn("00", "Japan"), 0:100), 1975:2016)
 Hokkaido  = extract.years(extract.ages(read.jpn("01", "Hokkaido"), 0:100), 1975:2016)
@@ -118,7 +116,7 @@ Miyazaki  = extract.years(extract.ages(read.jpn("45", "Miyazaki"), 0:100), 1975:
 Kagoshima = extract.years(extract.ages(read.jpn("46", "Kagoshima"), 0:100), 1975:2016)
 Okinawa   = extract.years(extract.ages(read.jpn("47", "Okinawa"), 0:100), 1975:2016)
 
-# mortality rates of all ages, 1 to 110
+# Raw mortality rates of all ages (1 -- 110)
 
 Japan_all     = extract.years(read.jpn("00", "Japan"), 1975:2016)
 Hokkaido_all  = extract.years(read.jpn("01", "Hokkaido"), 1975:2016)
@@ -169,10 +167,12 @@ Miyazaki_all  = extract.years(read.jpn("45", "Miyazaki"), 1975:2016)
 Kagoshima_all = extract.years(read.jpn("46", "Kagoshima"), 1975:2016)
 Okinawa_all   = extract.years(read.jpn("47", "Okinawa"), 1975:2016)
 
-# smoothed functional curves using penalized regression spline with monotonic constraint
+
+# Apply penalized regression spline with monotonic constraints to smooth national and subnational mortality rates
 
 for(i in 1:48)
 {
   assign(state_smooth[i], smooth.demogdata(get(state[i])))
 }
+
 

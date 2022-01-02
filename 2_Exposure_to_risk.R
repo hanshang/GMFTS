@@ -2,13 +2,17 @@
 # Forecast exposure to risk at the bottom-level 
 ################################################
 
+library(demography)
+library(ftsa)
+
 # top: exposure to risk for a given series at the bottom level
-# bottom: exposure to risk for Japan total series
+# bottom: exposure-to-risk for Japan total series
 # year_horizon: forecast horizon
 
+# Define a function to compute ratio of Exposure-to-risk at various levels
 pop_fore_fun <- function(top, bottom, year_horizon)
 {
-    Japan_pop_fore = array(,dim = c(year_horizon,101,year_horizon))
+    Japan_pop_fore = array(0,dim = c(year_horizon,101,year_horizon))
     for(year in 28:42)
     {
         Japan_pop_fore[1,2:101,(year-27)] = top[2:101,year]/bottom[2:101,year]

@@ -2,11 +2,15 @@
 # Calculate prediction intervals for the multivariate forecasting method without reconciliation
 ################################################################################################
 
+library(demography)
+library(ftsa)
+
 # data_series: specific data series
 # series: total, female, male
 # fh: forecast horizon
 # nboot: number of bootstrap replications
 
+# Define a function to find pointwise prediction intervals by bootstrap
 
 PI_fh_mfts <- function(data_series, pcamethod = c("static", "dynamic"), fh, nboot = 1000)
 {
@@ -14,19 +18,21 @@ PI_fh_mfts <- function(data_series, pcamethod = c("static", "dynamic"), fh, nboo
   PI_boot_mfts_male    = array(NA, dim = c(length(data_series$age), nboot, (16-fh)))
   for(ij in 1:(16-fh))
   {
-    dum_pointwise = find_enlarge_val_mfts(data_series = extract.years(data_series, 1975:(2001+ij)),  pcamethod = c("static", "dynamic"), fh = fh)
+    dum_pointwise = find_enlarge_val_mfts(data_series = extract.years(data_series, 1975:(2001+ij)),  pcamethod = pcamethod, fh = fh)
     PI_boot_mfts_female[,,ij]  = dum_pointwise$boot_sample_female
     PI_boot_mfts_male[,,ij]    = dum_pointwise$boot_sample_male
   }
   return(list(PI_boot_mfts_female = PI_boot_mfts_female, PI_boot_mfts_male = PI_boot_mfts_male))
 }
 
-###############################################################################
-# compute (gender specific) interval scores  for a particular forecast horizon 
-###############################################################################
+############################################################
+# compute interval scores for a particular forecast horizon 
+############################################################
 
-# PI_val: one- to 15-step-ahead prediction intervals
-# alpha: nominal coverage probability
+# Define a function to calculate interval scores for the bootstrapped PIs
+
+## PI_val: one- to 15-step-ahead prediction intervals
+## alpha: nominal coverage probability
 
 interval_score_mfts <- function(PI_val, data_series, fh, alpha = 0.8)
 {
@@ -109,14 +115,14 @@ interval_score_mfts <- function(PI_val, data_series, fh, alpha = 0.8)
 
 library(doParallel)
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Japan_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Japan, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Japan_female_mfts = interval_score_Japan_male_mfts = vector(,15)
+interval_score_Japan_female_mfts = interval_score_Japan_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Japan_female_mfts[ij] = interval_score_mfts(PI_val = Japan_fh_PI_mfts, 
@@ -141,14 +147,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Hokkaido_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Hokkaido, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hokkaido_female_mfts = interval_score_Hokkaido_male_mfts = vector(,15)
+interval_score_Hokkaido_female_mfts = interval_score_Hokkaido_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Hokkaido_female_mfts[ij] = interval_score_mfts(PI_val = Hokkaido_fh_PI_mfts, 
@@ -169,14 +175,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Aomori_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Aomori, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Aomori_female_mfts = interval_score_Aomori_male_mfts = vector(,15)
+interval_score_Aomori_female_mfts = interval_score_Aomori_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Aomori_female_mfts[ij] = interval_score_mfts(PI_val = Aomori_fh_PI_mfts, 
@@ -198,14 +204,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Iwate_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Iwate, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Iwate_female_mfts = interval_score_Iwate_male_mfts = vector(,15)
+interval_score_Iwate_female_mfts = interval_score_Iwate_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Iwate_female_mfts[ij] = interval_score_mfts(PI_val = Iwate_fh_PI_mfts, 
@@ -227,14 +233,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Miyagi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Miyagi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Miyagi_female_mfts = interval_score_Miyagi_male_mfts = vector(,15)
+interval_score_Miyagi_female_mfts = interval_score_Miyagi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Miyagi_female_mfts[ij] = interval_score_mfts(PI_val = Miyagi_fh_PI_mfts, 
@@ -256,14 +262,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Akita_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Akita, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Akita_female_mfts = interval_score_Akita_male_mfts = vector(,15)
+interval_score_Akita_female_mfts = interval_score_Akita_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Akita_female_mfts[ij] = interval_score_mfts(PI_val = Akita_fh_PI_mfts, 
@@ -285,14 +291,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Yamagata_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Yamagata, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamagata_female_mfts = interval_score_Yamagata_male_mfts = vector(,15)
+interval_score_Yamagata_female_mfts = interval_score_Yamagata_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Yamagata_female_mfts[ij] = interval_score_mfts(PI_val = Yamagata_fh_PI_mfts, 
@@ -314,14 +320,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Fukushima_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Fukushima, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukushima_female_mfts = interval_score_Fukushima_male_mfts = vector(,15)
+interval_score_Fukushima_female_mfts = interval_score_Fukushima_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Fukushima_female_mfts[ij] = interval_score_mfts(PI_val = Fukushima_fh_PI_mfts, 
@@ -343,14 +349,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Ibaraki_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Ibaraki, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ibaraki_female_mfts = interval_score_Ibaraki_male_mfts = vector(,15)
+interval_score_Ibaraki_female_mfts = interval_score_Ibaraki_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Ibaraki_female_mfts[ij] = interval_score_mfts(PI_val = Ibaraki_fh_PI_mfts, 
@@ -371,14 +377,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Tochigi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Tochigi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tochigi_female_mfts = interval_score_Tochigi_male_mfts = vector(,15)
+interval_score_Tochigi_female_mfts = interval_score_Tochigi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Tochigi_female_mfts[ij] = interval_score_mfts(PI_val = Tochigi_fh_PI_mfts, 
@@ -400,14 +406,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Gunma_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Gunma, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Gunma_female_mfts = interval_score_Gunma_male_mfts = vector(,15)
+interval_score_Gunma_female_mfts = interval_score_Gunma_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Gunma_female_mfts[ij] = interval_score_mfts(PI_val = Gunma_fh_PI_mfts, 
@@ -428,14 +434,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Saitama_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Saitama, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Saitama_female_mfts = interval_score_Saitama_male_mfts = vector(,15)
+interval_score_Saitama_female_mfts = interval_score_Saitama_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Saitama_female_mfts[ij] = interval_score_mfts(PI_val = Saitama_fh_PI_mfts, 
@@ -457,14 +463,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Chiba_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Chiba, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Chiba_female_mfts = interval_score_Chiba_male_mfts = vector(,15)
+interval_score_Chiba_female_mfts = interval_score_Chiba_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Chiba_female_mfts[ij] = interval_score_mfts(PI_val = Chiba_fh_PI_mfts, 
@@ -486,14 +492,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Tokyo_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Tokyo, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tokyo_female_mfts = interval_score_Tokyo_male_mfts = vector(,15)
+interval_score_Tokyo_female_mfts = interval_score_Tokyo_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Tokyo_female_mfts[ij] = interval_score_mfts(PI_val = Tokyo_fh_PI_mfts, 
@@ -515,14 +521,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kanagawa_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kanagawa, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kanagawa_female_mfts = interval_score_Kanagawa_male_mfts = vector(,15)
+interval_score_Kanagawa_female_mfts = interval_score_Kanagawa_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kanagawa_female_mfts[ij] = interval_score_mfts(PI_val = Kanagawa_fh_PI_mfts, 
@@ -544,14 +550,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Niigata_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Niigata, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Niigata_female_mfts = interval_score_Niigata_male_mfts = vector(,15)
+interval_score_Niigata_female_mfts = interval_score_Niigata_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Niigata_female_mfts[ij] = interval_score_mfts(PI_val = Niigata_fh_PI_mfts, 
@@ -573,14 +579,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Toyama_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Toyama, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Toyama_female_mfts = interval_score_Toyama_male_mfts = vector(,15)
+interval_score_Toyama_female_mfts = interval_score_Toyama_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Toyama_female_mfts[ij] = interval_score_mfts(PI_val = Toyama_fh_PI_mfts, 
@@ -602,14 +608,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Ishikawa_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Ishikawa, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ishikawa_female_mfts = interval_score_Ishikawa_male_mfts = vector(,15)
+interval_score_Ishikawa_female_mfts = interval_score_Ishikawa_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Ishikawa_female_mfts[ij] = interval_score_mfts(PI_val = Ishikawa_fh_PI_mfts, 
@@ -631,14 +637,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Fukui_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Fukui, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukui_female_mfts = interval_score_Fukui_male_mfts = vector(,15)
+interval_score_Fukui_female_mfts = interval_score_Fukui_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Fukui_female_mfts[ij] = interval_score_mfts(PI_val = Fukui_fh_PI_mfts, 
@@ -660,14 +666,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Yamanashi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Yamanashi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamanashi_female_mfts = interval_score_Yamanashi_male_mfts = vector(,15)
+interval_score_Yamanashi_female_mfts = interval_score_Yamanashi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Yamanashi_female_mfts[ij] = interval_score_mfts(PI_val = Yamanashi_fh_PI_mfts, 
@@ -689,14 +695,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Nagano_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Nagano, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nagano_female_mfts = interval_score_Nagano_male_mfts = vector(,15)
+interval_score_Nagano_female_mfts = interval_score_Nagano_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Nagano_female_mfts[ij] = interval_score_mfts(PI_val = Nagano_fh_PI_mfts, 
@@ -718,14 +724,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Gifu_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Gifu, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Gifu_female_mfts = interval_score_Gifu_male_mfts = vector(,15)
+interval_score_Gifu_female_mfts = interval_score_Gifu_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Gifu_female_mfts[ij] = interval_score_mfts(PI_val = Gifu_fh_PI_mfts, 
@@ -747,14 +753,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Shizuoka_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Shizuoka, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shizuoka_female_mfts = interval_score_Shizuoka_male_mfts = vector(,15)
+interval_score_Shizuoka_female_mfts = interval_score_Shizuoka_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Shizuoka_female_mfts[ij] = interval_score_mfts(PI_val = Shizuoka_fh_PI_mfts, 
@@ -776,14 +782,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Aichi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Aichi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Aichi_female_mfts = interval_score_Aichi_male_mfts = vector(,15)
+interval_score_Aichi_female_mfts = interval_score_Aichi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Aichi_female_mfts[ij] = interval_score_mfts(PI_val = Aichi_fh_PI_mfts, 
@@ -805,14 +811,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Mie_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Mie, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Mie_female_mfts = interval_score_Mie_male_mfts = vector(,15)
+interval_score_Mie_female_mfts = interval_score_Mie_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Mie_female_mfts[ij] = interval_score_mfts(PI_val = Mie_fh_PI_mfts, 
@@ -834,14 +840,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Shiga_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Shiga, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shiga_female_mfts = interval_score_Shiga_male_mfts = vector(,15)
+interval_score_Shiga_female_mfts = interval_score_Shiga_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Shiga_female_mfts[ij] = interval_score_mfts(PI_val = Shiga_fh_PI_mfts, 
@@ -863,14 +869,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kyoto_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kyoto, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kyoto_female_mfts = interval_score_Kyoto_male_mfts = vector(,15)
+interval_score_Kyoto_female_mfts = interval_score_Kyoto_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kyoto_female_mfts[ij] = interval_score_mfts(PI_val = Kyoto_fh_PI_mfts, 
@@ -892,14 +898,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Osaka_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Osaka, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Osaka_female_mfts = interval_score_Osaka_male_mfts = vector(,15)
+interval_score_Osaka_female_mfts = interval_score_Osaka_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Osaka_female_mfts[ij] = interval_score_mfts(PI_val = Osaka_fh_PI_mfts, 
@@ -921,14 +927,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Hyogo_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Hyogo, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hyogo_female_mfts = interval_score_Hyogo_male_mfts = vector(,15)
+interval_score_Hyogo_female_mfts = interval_score_Hyogo_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Hyogo_female_mfts[ij] = interval_score_mfts(PI_val = Hyogo_fh_PI_mfts, 
@@ -950,14 +956,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Nara_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Nara, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nara_female_mfts = interval_score_Nara_male_mfts = vector(,15)
+interval_score_Nara_female_mfts = interval_score_Nara_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Nara_female_mfts[ij] = interval_score_mfts(PI_val = Nara_fh_PI_mfts, 
@@ -979,14 +985,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Wakayama_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Wakayama, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Wakayama_female_mfts = interval_score_Wakayama_male_mfts = vector(,15)
+interval_score_Wakayama_female_mfts = interval_score_Wakayama_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Wakayama_female_mfts[ij] = interval_score_mfts(PI_val = Wakayama_fh_PI_mfts, 
@@ -1008,14 +1014,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Tottori_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Tottori, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tottori_female_mfts = interval_score_Tottori_male_mfts = vector(,15)
+interval_score_Tottori_female_mfts = interval_score_Tottori_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Tottori_female_mfts[ij] = interval_score_mfts(PI_val = Tottori_fh_PI_mfts, 
@@ -1037,14 +1043,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Shimane_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Shimane, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Shimane_female_mfts = interval_score_Shimane_male_mfts = vector(,15)
+interval_score_Shimane_female_mfts = interval_score_Shimane_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Shimane_female_mfts[ij] = interval_score_mfts(PI_val = Shimane_fh_PI_mfts, 
@@ -1066,14 +1072,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Okayama_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Okayama, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Okayama_female_mfts = interval_score_Okayama_male_mfts = vector(,15)
+interval_score_Okayama_female_mfts = interval_score_Okayama_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Okayama_female_mfts[ij] = interval_score_mfts(PI_val = Okayama_fh_PI_mfts, 
@@ -1095,14 +1101,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Hiroshima_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Hiroshima, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Hiroshima_female_mfts = interval_score_Hiroshima_male_mfts = vector(,15)
+interval_score_Hiroshima_female_mfts = interval_score_Hiroshima_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Hiroshima_female_mfts[ij] = interval_score_mfts(PI_val = Hiroshima_fh_PI_mfts, 
@@ -1124,14 +1130,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Yamaguchi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Yamaguchi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Yamaguchi_female_mfts = interval_score_Yamaguchi_male_mfts = vector(,15)
+interval_score_Yamaguchi_female_mfts = interval_score_Yamaguchi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Yamaguchi_female_mfts[ij] = interval_score_mfts(PI_val = Yamaguchi_fh_PI_mfts, 
@@ -1153,14 +1159,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Tokushima_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Tokushima, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Tokushima_female_mfts = interval_score_Tokushima_male_mfts = vector(,15)
+interval_score_Tokushima_female_mfts = interval_score_Tokushima_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Tokushima_female_mfts[ij] = interval_score_mfts(PI_val = Tokushima_fh_PI_mfts, 
@@ -1182,14 +1188,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kagawa_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kagawa, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kagawa_female_mfts = interval_score_Kagawa_male_mfts = vector(,15)
+interval_score_Kagawa_female_mfts = interval_score_Kagawa_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kagawa_female_mfts[ij] = interval_score_mfts(PI_val = Kagawa_fh_PI_mfts, 
@@ -1211,14 +1217,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Ehime_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Ehime, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Ehime_female_mfts = interval_score_Ehime_male_mfts = vector(,15)
+interval_score_Ehime_female_mfts = interval_score_Ehime_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Ehime_female_mfts[ij] = interval_score_mfts(PI_val = Ehime_fh_PI_mfts, 
@@ -1240,14 +1246,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kochi_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kochi, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kochi_female_mfts = interval_score_Kochi_male_mfts = vector(,15)
+interval_score_Kochi_female_mfts = interval_score_Kochi_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kochi_female_mfts[ij] = interval_score_mfts(PI_val = Kochi_fh_PI_mfts, 
@@ -1269,14 +1275,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Fukuoka_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Fukuoka, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Fukuoka_female_mfts = interval_score_Fukuoka_male_mfts = vector(,15)
+interval_score_Fukuoka_female_mfts = interval_score_Fukuoka_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Fukuoka_female_mfts[ij] = interval_score_mfts(PI_val = Fukuoka_fh_PI_mfts, 
@@ -1298,14 +1304,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Saga_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Saga, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Saga_female_mfts = interval_score_Saga_male_mfts = vector(,15)
+interval_score_Saga_female_mfts = interval_score_Saga_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Saga_female_mfts[ij] = interval_score_mfts(PI_val = Saga_fh_PI_mfts, 
@@ -1327,14 +1333,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Nagasaki_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Nagasaki, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Nagasaki_female_mfts = interval_score_Nagasaki_male_mfts = vector(,15)
+interval_score_Nagasaki_female_mfts = interval_score_Nagasaki_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Nagasaki_female_mfts[ij] = interval_score_mfts(PI_val = Nagasaki_fh_PI_mfts, 
@@ -1356,14 +1362,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kumamoto_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kumamoto, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kumamoto_female_mfts = interval_score_Kumamoto_male_mfts = vector(,15)
+interval_score_Kumamoto_female_mfts = interval_score_Kumamoto_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kumamoto_female_mfts[ij] = interval_score_mfts(PI_val = Kumamoto_fh_PI_mfts, 
@@ -1385,14 +1391,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Oita_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Oita, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Oita_female_mfts = interval_score_Oita_male_mfts = vector(,15)
+interval_score_Oita_female_mfts = interval_score_Oita_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Oita_female_mfts[ij] = interval_score_mfts(PI_val = Oita_fh_PI_mfts, 
@@ -1414,14 +1420,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Miyazaki_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Miyazaki, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Miyazaki_female_mfts = interval_score_Miyazaki_male_mfts = vector(,15)
+interval_score_Miyazaki_female_mfts = interval_score_Miyazaki_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Miyazaki_female_mfts[ij] = interval_score_mfts(PI_val = Miyazaki_fh_PI_mfts, 
@@ -1443,14 +1449,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Kagoshima_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Kagoshima, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Kagoshima_female_mfts = interval_score_Kagoshima_male_mfts = vector(,15)
+interval_score_Kagoshima_female_mfts = interval_score_Kagoshima_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Kagoshima_female_mfts[ij] = interval_score_mfts(PI_val = Kagoshima_fh_PI_mfts, 
@@ -1472,14 +1478,14 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 Okinawa_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = Okinawa, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_Okinawa_female_mfts = interval_score_Okinawa_male_mfts = vector(,15)
+interval_score_Okinawa_female_mfts = interval_score_Okinawa_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_Okinawa_female_mfts[ij] = interval_score_mfts(PI_val = Okinawa_fh_PI_mfts, 
@@ -1612,21 +1618,21 @@ for(ik in 1:15)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R1_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R1, pcamethod = "dynamic", fh = ik)
+R1_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R1, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R1_female_mfts = interval_score_R1_male_mfts = vector(,15)
+interval_score_R1_female_mfts = interval_score_R1_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R1_female_mfts[ij] = interval_score_mfts(PI_val = R1_fh_PI_mfts, 
-                                                                data_series = ind_R1, fh = ij)$score_female
+                                                                data_series = mfts_R1, fh = ij)$score_female
   
   interval_score_R1_male_mfts[ij] = interval_score_mfts(PI_val = R1_fh_PI_mfts, 
-                                                              data_series = ind_R1, fh = ij)$score_male
+                                                              data_series = mfts_R1, fh = ij)$score_male
   
   print(ij)
 }
@@ -1640,21 +1646,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R2_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R2, pcamethod = "dynamic", fh = ik)
+R2_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R2, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R2_female_mfts = interval_score_R2_male_mfts = vector(,15)
+interval_score_R2_female_mfts = interval_score_R2_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R2_female_mfts[ij] = interval_score_mfts(PI_val = R2_fh_PI_mfts, 
-                                                          data_series = ind_R2, fh = ij)$score_female
+                                                          data_series = mfts_R2, fh = ij)$score_female
   
   interval_score_R2_male_mfts[ij] = interval_score_mfts(PI_val = R2_fh_PI_mfts, 
-                                                        data_series = ind_R2, fh = ij)$score_male
+                                                        data_series = mfts_R2, fh = ij)$score_male
   
   print(ij)
 }
@@ -1669,21 +1675,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R3_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R3, pcamethod = "dynamic", fh = ik)
+R3_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R3, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R3_female_mfts = interval_score_R3_male_mfts = vector(,15)
+interval_score_R3_female_mfts = interval_score_R3_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R3_female_mfts[ij] = interval_score_mfts(PI_val = R3_fh_PI_mfts, 
-                                                          data_series = ind_R3, fh = ij)$score_female
+                                                          data_series = mfts_R3, fh = ij)$score_female
   
   interval_score_R3_male_mfts[ij] = interval_score_mfts(PI_val = R3_fh_PI_mfts, 
-                                                        data_series = ind_R3, fh = ij)$score_male
+                                                        data_series = mfts_R3, fh = ij)$score_male
   
   print(ij)
 }
@@ -1698,21 +1704,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R4_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R4, pcamethod = "dynamic", fh = ik)
+R4_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R4, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R4_female_mfts = interval_score_R4_male_mfts = vector(,15)
+interval_score_R4_female_mfts = interval_score_R4_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R4_female_mfts[ij] = interval_score_mfts(PI_val = R4_fh_PI_mfts, 
-                                                          data_series = ind_R4, fh = ij)$score_female
+                                                          data_series = mfts_R4, fh = ij)$score_female
   
   interval_score_R4_male_mfts[ij] = interval_score_mfts(PI_val = R4_fh_PI_mfts, 
-                                                        data_series = ind_R4, fh = ij)$score_male
+                                                        data_series = mfts_R4, fh = ij)$score_male
   
   print(ij)
 }
@@ -1727,21 +1733,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R5_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R5, pcamethod = "dynamic", fh = ik)
+R5_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R5, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R5_female_mfts = interval_score_R5_male_mfts = vector(,15)
+interval_score_R5_female_mfts = interval_score_R5_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R5_female_mfts[ij] = interval_score_mfts(PI_val = R5_fh_PI_mfts, 
-                                                          data_series = ind_R5, fh = ij)$score_female
+                                                          data_series = mfts_R5, fh = ij)$score_female
   
   interval_score_R5_male_mfts[ij] = interval_score_mfts(PI_val = R5_fh_PI_mfts, 
-                                                        data_series = ind_R5, fh = ij)$score_male
+                                                        data_series = mfts_R5, fh = ij)$score_male
   
   print(ij)
 }
@@ -1756,21 +1762,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R6_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R6, pcamethod = "dynamic", fh = ik)
+R6_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R6, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R6_female_mfts = interval_score_R6_male_mfts = vector(,15)
+interval_score_R6_female_mfts = interval_score_R6_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R6_female_mfts[ij] = interval_score_mfts(PI_val = R6_fh_PI_mfts, 
-                                                          data_series = ind_R6, fh = ij)$score_female
+                                                          data_series = mfts_R6, fh = ij)$score_female
   
   interval_score_R6_male_mfts[ij] = interval_score_mfts(PI_val = R6_fh_PI_mfts, 
-                                                        data_series = ind_R6, fh = ij)$score_male
+                                                        data_series = mfts_R6, fh = ij)$score_male
   
   print(ij)
 }
@@ -1785,21 +1791,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R7_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R7, pcamethod = "dynamic", fh = ik)
+R7_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R7, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R7_female_mfts = interval_score_R7_male_mfts = vector(,15)
+interval_score_R7_female_mfts = interval_score_R7_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R7_female_mfts[ij] = interval_score_mfts(PI_val = R7_fh_PI_mfts, 
-                                                          data_series = ind_R7, fh = ij)$score_female
+                                                          data_series = mfts_R7, fh = ij)$score_female
   
   interval_score_R7_male_mfts[ij] = interval_score_mfts(PI_val = R7_fh_PI_mfts, 
-                                                        data_series = ind_R7, fh = ij)$score_male
+                                                        data_series = mfts_R7, fh = ij)$score_male
   
   print(ij)
 }
@@ -1814,21 +1820,21 @@ rm(cl)
 
 # pointwise prediction interval for all 15 forecast horizons
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
-R8_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = ind_R8, pcamethod = "dynamic", fh = ik)
+R8_fh_PI_mfts = foreach(ik = 1:15, .packages = c("demography", "ftsa")) %dopar% PI_fh_mfts(data_series = mfts_R8, pcamethod = "dynamic", fh = ik)
 
 # compute interval scores for all forecast horizons
 
-interval_score_R8_female_mfts = interval_score_R8_male_mfts = vector(,15)
+interval_score_R8_female_mfts = interval_score_R8_male_mfts = rep(0,15)
 for(ij in 1:15)
 {
   interval_score_R8_female_mfts[ij] = interval_score_mfts(PI_val = R8_fh_PI_mfts, 
-                                                          data_series = ind_R8, fh = ij)$score_female
+                                                          data_series = mfts_R8, fh = ij)$score_female
   
   interval_score_R8_male_mfts[ij] = interval_score_mfts(PI_val = R8_fh_PI_mfts, 
-                                                        data_series = ind_R8, fh = ij)$score_male
+                                                        data_series = mfts_R8, fh = ij)$score_male
   
   print(ij)
 }
@@ -2192,7 +2198,7 @@ for(i in 2:48)
 # region level total series interval score
 ##########################################
 
-cl <- makeCluster(8) 
+cl <- makeCluster(15) 
 registerDoParallel(cl)
 
 

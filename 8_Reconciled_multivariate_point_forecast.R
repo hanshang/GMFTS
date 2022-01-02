@@ -2,6 +2,9 @@
 # Reconciliation of multivariate point forecasts
 #################################################
 
+library(demography)
+library(ftsa)
+
 # female_data_raw: Female age-specific exposure to risk
 # male_data_raw: Male age-specific exposure to risk 
 # female_data_raw_rate: Female age-specific mortality rates (mfts)
@@ -10,7 +13,7 @@
 # kj: forecast horizon
 # hier_method: bottom-up or optimal combination method
 
-# reconciliation function (shared by both univariate and multivariate functional time series forecasting methods)
+# Define a point forecasts reconciliation function 
 
 BU_optim_hier_mfts <- function(total_data_raw_rate_region, female_data_raw_rate_region,
                               male_data_raw_rate_region, female_data_raw_rate, male_data_raw_rate,
@@ -18,7 +21,7 @@ BU_optim_hier_mfts <- function(total_data_raw_rate_region, female_data_raw_rate_
 {
     hier_method = match.arg(hier_method)
     
-    hier_rate = matrix(,168,(16-kj)) # in total 168 series
+    hier_rate = matrix(0,168,(16-kj)) # in total 168 series
     # Level_0 (Total)
     hier_rate[1,] = get(total_data_raw_rate[1])[kj,age,1:(16-kj)] # first arg: horizon; # third arg: number of forecasting years 
     # Level_1 (Sex)
@@ -46,7 +49,7 @@ BU_optim_hier_mfts <- function(total_data_raw_rate_region, female_data_raw_rate_
     }
 
     # forecast reconciliation via bottom-up, optimal combination or MinT methods
-    hier_fore   = matrix(,168,(16-kj))
+    hier_fore   = matrix(0,168,(16-kj))
     summing_mat = Smat_fun(kj = kj, age = age)
     for(ik in 1:(16-kj))
     {
@@ -61,29 +64,29 @@ BU_optim_hier_mfts <- function(total_data_raw_rate_region, female_data_raw_rate_
         }
         if(hier_method == "comb_OLS")
         {
-            hier_fore[,ik] = hier %*% ginv(t(hier) %*% hier) %*% t(hier) %*% hier_rate[,ik]
+            hier_fore[,ik] = hier %*% solve(t(hier) %*% hier) %*% t(hier) %*% hier_rate[,ik]
         }
         if(hier_method == "comb_GLS")
         {
-          hier_fore[,ik] = hier %*% ginv(t(hier) %*% ginv(diag(rowSums(hier^2))) %*% hier) %*% t(hier) %*% ginv(diag(rowSums(hier^2))) %*% hier_rate[,ik]
+          hier_fore[,ik] = hier %*% solve(t(hier) %*% solve(diag(rowSums(hier^2))) %*% hier) %*% t(hier) %*% solve(diag(rowSums(hier^2))) %*% hier_rate[,ik]
         }
         if(hier_method == "mint")
         {
-          wh = wh_fun(kj = kj, age = age)
+          wh = wh_fun_mfts(kj = kj, age = age)
           hier_fore[,ik] = hier %*% solve(t(hier) %*% solve(wh) %*% hier) %*% t(hier) %*% solve(wh) %*% hier_rate[,ik]
         }
     }
     return(hier_fore)
 }
 
-# point forecast errors function (shared by both univariate and multivariate functional time series forecasting methods)
+# Define a function for computing reconciled errors
 
 BU_optim_err <- function(ik, hier_method, total_data_raw_rate_region, female_data_raw_rate_region,
                          male_data_raw_rate_region, female_data_raw_rate, 
                          male_data_raw_rate, total_data_raw_rate)
 {
     me = ftsa:::me; mae = ftsa:::mae; rmse = ftsa:::rmse
-    BU_optim_hier_comb = array(, dim = c(101,168,(16-ik)))
+    BU_optim_hier_comb = array(0, dim = c(101,168,(16-ik)))
     for(ik_age in 1:101)
     {
         BU_optim_hier_comb[ik_age,,] = BU_optim_hier_mfts(total_data_raw_rate_region, female_data_raw_rate_region,
@@ -112,7 +115,7 @@ BU_optim_err <- function(ik, hier_method, total_data_raw_rate_region, female_dat
     rmse_male_err   = rmse(BU_optim_hier_comb[,3,],  extract.years(get(state[1]), years = (2001+ik):2016)$rate$male)
 
     # Level 2 (Region + Total, Female and Male)
-    me_total_R_err = me_female_R_err = me_male_R_err = mae_total_R_err = mae_female_R_err = mae_male_R_err = rmse_total_R_err = rmse_female_R_err = rmse_male_R_err = vector(,8)
+    me_total_R_err = me_female_R_err = me_male_R_err = mae_total_R_err = mae_female_R_err = mae_male_R_err = rmse_total_R_err = rmse_female_R_err = rmse_male_R_err = rep(0, 8)
     for(iw in 1:8)
     {
         me_total_R_err[iw]  = me(BU_optim_hier_comb[,(iw+3),],  extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
@@ -130,7 +133,7 @@ BU_optim_err <- function(ik, hier_method, total_data_raw_rate_region, female_dat
     
     # Level 3 (Prefecture + Total)
       
-    me_state_err = bottom_female_me =  bottom_male_me = mae_state_err = bottom_female_mae =  bottom_male_mae = rmse_state_err = bottom_female_rmse = bottom_male_rmse = vector(,47)
+    me_state_err = bottom_female_me =  bottom_male_me = mae_state_err = bottom_female_mae =  bottom_male_mae = rmse_state_err = bottom_female_rmse = bottom_male_rmse = rep(0, 47)
     
     for(iwk in 2:48)
     {
@@ -176,11 +179,11 @@ BU_optim_err <- function(ik, hier_method, total_data_raw_rate_region, female_dat
 # Point forecast errors; fmethod = "Ind" 
 ########################################
 
-# create storing objects:
+# Define variables for the base forecasts
 
-Ind_Level_0_err     = Ind_Level_F_err       = Ind_Level_M_err       = matrix(,15,3)
-Ind_Level_T_R_err   = Ind_Level_F_R_err     = Ind_Level_M_R_err     = array(, dim = c(8,15,3))
-Ind_Level_State_err = Ind_Level_State_F_err = Ind_Level_State_M_err = array(, dim = c(47,15,3))
+mfts_Level_0_err     = mfts_Level_F_err       = mfts_Level_M_err       = matrix(0,15,3)
+mfts_Level_T_R_err   = mfts_Level_F_R_err     = mfts_Level_M_R_err     = array(0, dim = c(8,15,3))
+mfts_Level_State_err = mfts_Level_State_F_err = mfts_Level_State_M_err = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
@@ -193,72 +196,70 @@ for(ikw in 1:15)
   
   # Total + Sex
   
-  Ind_Level_0_err[ikw,1] = dum$me_total_err
-  Ind_Level_F_err[ikw,1] = dum$me_female_err
-  Ind_Level_M_err[ikw,1] = dum$me_male_err
+  mfts_Level_0_err[ikw,1] = dum$me_total_err
+  mfts_Level_F_err[ikw,1] = dum$me_female_err
+  mfts_Level_M_err[ikw,1] = dum$me_male_err
   
-  Ind_Level_0_err[ikw,2] = dum$mae_total_err
-  Ind_Level_F_err[ikw,2] = dum$mae_female_err
-  Ind_Level_M_err[ikw,2] = dum$mae_male_err
+  mfts_Level_0_err[ikw,2] = dum$mae_total_err
+  mfts_Level_F_err[ikw,2] = dum$mae_female_err
+  mfts_Level_M_err[ikw,2] = dum$mae_male_err
   
-  Ind_Level_0_err[ikw,3] = dum$rmse_total_err
-  Ind_Level_F_err[ikw,3] = dum$rmse_female_err
-  Ind_Level_M_err[ikw,3] = dum$rmse_male_err
+  mfts_Level_0_err[ikw,3] = dum$rmse_total_err
+  mfts_Level_F_err[ikw,3] = dum$rmse_female_err
+  mfts_Level_M_err[ikw,3] = dum$rmse_male_err
   
   # Region + Sex
   
-  Ind_Level_T_R_err[,ikw,1] = dum$me_total_R_err
-  Ind_Level_F_R_err[,ikw,1] = dum$me_female_R_err
-  Ind_Level_M_R_err[,ikw,1] = dum$me_male_R_err
+  mfts_Level_T_R_err[,ikw,1] = dum$me_total_R_err
+  mfts_Level_F_R_err[,ikw,1] = dum$me_female_R_err
+  mfts_Level_M_R_err[,ikw,1] = dum$me_male_R_err
   
-  Ind_Level_T_R_err[,ikw,2] = dum$mae_total_R_err
-  Ind_Level_F_R_err[,ikw,2] = dum$mae_female_R_err
-  Ind_Level_M_R_err[,ikw,2] = dum$mae_male_R_err
+  mfts_Level_T_R_err[,ikw,2] = dum$mae_total_R_err
+  mfts_Level_F_R_err[,ikw,2] = dum$mae_female_R_err
+  mfts_Level_M_R_err[,ikw,2] = dum$mae_male_R_err
   
-  Ind_Level_T_R_err[,ikw,3] = dum$rmse_total_R_err
-  Ind_Level_F_R_err[,ikw,3] = dum$rmse_female_R_err
-  Ind_Level_M_R_err[,ikw,3] = dum$rmse_male_R_err
+  mfts_Level_T_R_err[,ikw,3] = dum$rmse_total_R_err
+  mfts_Level_F_R_err[,ikw,3] = dum$rmse_female_R_err
+  mfts_Level_M_R_err[,ikw,3] = dum$rmse_male_R_err
   
   # Prefecture + Sex
   
-  Ind_Level_State_err[,ikw,1]   = dum$me_state_err
-  Ind_Level_State_F_err[,ikw,1] = dum$me_bottom_female_err
-  Ind_Level_State_M_err[,ikw,1] = dum$me_bottom_male_err
+  mfts_Level_State_err[,ikw,1]   = dum$me_state_err
+  mfts_Level_State_F_err[,ikw,1] = dum$me_bottom_female_err
+  mfts_Level_State_M_err[,ikw,1] = dum$me_bottom_male_err
   
-  Ind_Level_State_err[,ikw,2]   = dum$mae_state_err
-  Ind_Level_State_F_err[,ikw,2] = dum$mae_bottom_female_err
-  Ind_Level_State_M_err[,ikw,2] = dum$mae_bottom_male_err
+  mfts_Level_State_err[,ikw,2]   = dum$mae_state_err
+  mfts_Level_State_F_err[,ikw,2] = dum$mae_bottom_female_err
+  mfts_Level_State_M_err[,ikw,2] = dum$mae_bottom_male_err
   
-  Ind_Level_State_err[,ikw,3]   = dum$rmse_state_err
-  Ind_Level_State_F_err[,ikw,3] = dum$rmse_bottom_female_err
-  Ind_Level_State_M_err[,ikw,3] = dum$rmse_bottom_male_err
+  mfts_Level_State_err[,ikw,3]   = dum$rmse_state_err
+  mfts_Level_State_F_err[,ikw,3] = dum$rmse_bottom_female_err
+  mfts_Level_State_M_err[,ikw,3] = dum$rmse_bottom_male_err
 }
 
 # summary of results
 
-Ind_all_level_err_me = cbind(Ind_Level_0_err[,1], rowMeans(cbind(Ind_Level_F_err[,1], Ind_Level_M_err[,1])),
-                            colMeans(Ind_Level_T_R_err[,,1]), colMeans(rbind(Ind_Level_F_R_err[,,1], Ind_Level_M_R_err[,,1])),
-                            colMeans(Ind_Level_State_err[,,1]), colMeans(rbind(Ind_Level_State_F_err[,,1], Ind_Level_State_M_err[,,1])))
-Ind_all_level_err_mae = cbind(Ind_Level_0_err[,2], rowMeans(cbind(Ind_Level_F_err[,2], Ind_Level_M_err[,2])),
-                             colMeans(Ind_Level_T_R_err[,,2]), colMeans(rbind(Ind_Level_F_R_err[,,2], Ind_Level_M_R_err[,,2])),
-                             colMeans(Ind_Level_State_err[,,2]), colMeans(rbind(Ind_Level_State_F_err[,,2], Ind_Level_State_M_err[,,2])))
-Ind_all_level_err_rmse = cbind(Ind_Level_0_err[,3], rowMeans(cbind(Ind_Level_F_err[,3], Ind_Level_M_err[,3])),
-                             colMeans(Ind_Level_T_R_err[,,3]), colMeans(rbind(Ind_Level_F_R_err[,,3], Ind_Level_M_R_err[,,3])),
-                             colMeans(Ind_Level_State_err[,,3]), colMeans(rbind(Ind_Level_State_F_err[,,3], Ind_Level_State_M_err[,,3])))
+mfts_all_level_err_me = cbind(mfts_Level_0_err[,1], rowMeans(cbind(mfts_Level_F_err[,1], mfts_Level_M_err[,1])),
+                            colMeans(mfts_Level_T_R_err[,,1]), colMeans(rbind(mfts_Level_F_R_err[,,1], mfts_Level_M_R_err[,,1])),
+                            colMeans(mfts_Level_State_err[,,1]), colMeans(rbind(mfts_Level_State_F_err[,,1], mfts_Level_State_M_err[,,1])))
+mfts_all_level_err_mae = cbind(mfts_Level_0_err[,2], rowMeans(cbind(mfts_Level_F_err[,2], mfts_Level_M_err[,2])),
+                             colMeans(mfts_Level_T_R_err[,,2]), colMeans(rbind(mfts_Level_F_R_err[,,2], mfts_Level_M_R_err[,,2])),
+                             colMeans(mfts_Level_State_err[,,2]), colMeans(rbind(mfts_Level_State_F_err[,,2], mfts_Level_State_M_err[,,2])))
+mfts_all_level_err_rmse = cbind(mfts_Level_0_err[,3], rowMeans(cbind(mfts_Level_F_err[,3], mfts_Level_M_err[,3])),
+                             colMeans(mfts_Level_T_R_err[,,3]), colMeans(rbind(mfts_Level_F_R_err[,,3], mfts_Level_M_R_err[,,3])),
+                             colMeans(mfts_Level_State_err[,,3]), colMeans(rbind(mfts_Level_State_F_err[,,3], mfts_Level_State_M_err[,,3])))
 
-colnames(Ind_all_level_err_me) = colnames(Ind_all_level_err_mae) = colnames(Ind_all_level_err_rmse) = c("Total", "Sex", "Region", "Region + Sex", "Prefecture", "Prefecture + Sex")
-
-
+colnames(mfts_all_level_err_me) = colnames(mfts_all_level_err_mae) = colnames(mfts_all_level_err_rmse) = c("Total", "Sex", "Region", "Region + Sex", "Prefecture", "Prefecture + Sex")
 
 ########################################
 # Point forecast errors; fmethod = "BU" 
 ########################################
 
-# create storing objects:
+# Define variables for the Bottom-up reconciled forecasts
 
-Level_0_err     = Level_F_err       = Level_M_err       = matrix(,15,3)
-Level_T_R_err   = Level_F_R_err     = Level_M_R_err     = array(, dim = c(15,3,8))
-Level_State_err = Level_State_F_err = Level_State_M_err = array(, dim = c(47,15,3))
+Level_0_err     = Level_F_err       = Level_M_err       = matrix(0,15,3)
+Level_T_R_err   = Level_F_R_err     = Level_M_R_err     = array(0, dim = c(15,3,8))
+Level_State_err = Level_State_F_err = Level_State_M_err = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
@@ -332,11 +333,11 @@ colnames(BU_all_level_err_me) = colnames(BU_all_level_err_mae) = colnames(BU_all
 # Point forecast errors; fmethod = "comb_OLS" 
 ##############################################
 
-# create storing objects:
+# Define variables for the Optimal Combination (OLS) reconciled forecasts
 
-optim_Level_0_err     = optim_Level_F_err       = optim_Level_M_err       = matrix(,15,3)
-optim_Level_T_R_err   = optim_Level_F_R_err     = optim_Level_M_R_err     = array(, dim = c(15,3,8))
-optim_Level_State_err = optim_Level_State_F_err = optim_Level_State_M_err = array(, dim = c(47,15,3))
+optim_Level_0_err     = optim_Level_F_err       = optim_Level_M_err       = matrix(0,15,3)
+optim_Level_T_R_err   = optim_Level_F_R_err     = optim_Level_M_R_err     = array(0, dim = c(15,3,8))
+optim_Level_State_err = optim_Level_State_F_err = optim_Level_State_M_err = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
@@ -409,11 +410,11 @@ colnames(optim_all_level_err_me) = colnames(optim_all_level_err_mae) = colnames(
 # Point forecast errors; fmethod = "comb_GLS" 
 ##############################################
 
-# create storing objects:
+# Define variables for the Optimal Combination (GLS) reconciled forecasts
 
-optim_GLS_Level_0_err     = optim_GLS_Level_F_err       = optim_GLS_Level_M_err       = matrix(,15,3)
-optim_GLS_Level_T_R_err   = optim_GLS_Level_F_R_err     = optim_GLS_Level_M_R_err     = array(, dim = c(15,3,8))
-optim_GLS_Level_State_err = optim_GLS_Level_State_F_err = optim_GLS_Level_State_M_err = array(, dim = c(47,15,3))
+optim_GLS_Level_0_err     = optim_GLS_Level_F_err       = optim_GLS_Level_M_err       = matrix(0,15,3)
+optim_GLS_Level_T_R_err   = optim_GLS_Level_F_R_err     = optim_GLS_Level_M_R_err     = array(0, dim = c(15,3,8))
+optim_GLS_Level_State_err = optim_GLS_Level_State_F_err = optim_GLS_Level_State_M_err = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {
@@ -487,11 +488,11 @@ colnames(optim_GLS_all_level_err_me) = colnames(optim_GLS_all_level_err_mae) = c
 # Point forecast errors; fmethod = "mint" 
 ##########################################
 
-# create storing objects:
+# Define variables for the MinT reconciled forecasts
 
-optim_mint_Level_0_err     = optim_mint_Level_F_err       = optim_mint_Level_M_err       = matrix(,15,3)
-optim_mint_Level_T_R_err   = optim_mint_Level_F_R_err     = optim_mint_Level_M_R_err     = array(, dim = c(15,3,8))
-optim_mint_Level_State_err = optim_mint_Level_State_F_err = optim_mint_Level_State_M_err = array(, dim = c(47,15,3))
+optim_mint_Level_0_err     = optim_mint_Level_F_err       = optim_mint_Level_M_err       = matrix(0,15,3)
+optim_mint_Level_T_R_err   = optim_mint_Level_F_R_err     = optim_mint_Level_M_R_err     = array(0, dim = c(15,3,8))
+optim_mint_Level_State_err = optim_mint_Level_State_F_err = optim_mint_Level_State_M_err = array(0, dim = c(47,15,3))
 
 for(ikw in 1:15)
 {

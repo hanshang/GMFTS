@@ -2,15 +2,19 @@
 # Calculate mean interval scores for the univariate forecasting with the MinT method
 ######################################################################################
 
+library(demography)
+library(ftsa)
+
 # PI_val = mint_hier_comb_dynamic_lb_ub: All-level lower and upper bounds of forecast mortality rates
 # data_series: specific data series
 # series: female, male or total
 # fh: forecast horizon
 # index: corresponding index in the hierarchy
 
+# Compute mean interval scores for the univariate forecasting method
 # Japan + Sex
 
-mint_interval_score_Japan_total_dynamic = mint_interval_score_Japan_female_dynamic = mint_interval_score_Japan_male_dynamic = vector(,15)
+mint_interval_score_Japan_total_dynamic = mint_interval_score_Japan_female_dynamic = mint_interval_score_Japan_male_dynamic = rep(0,15)
 for(ik in 1:15)
 {
   # Level 0
@@ -31,33 +35,33 @@ for(ik in 1:15)
 # Region total
 
 mint_interval_score_R1_total_dynamic = mint_interval_score_R2_total_dynamic = mint_interval_score_R3_total_dynamic = mint_interval_score_R4_total_dynamic = 
-  mint_interval_score_R5_total_dynamic = mint_interval_score_R6_total_dynamic = mint_interval_score_R7_total_dynamic = mint_interval_score_R8_total_dynamic = vector(,15)
+  mint_interval_score_R5_total_dynamic = mint_interval_score_R6_total_dynamic = mint_interval_score_R7_total_dynamic = mint_interval_score_R8_total_dynamic = rep(0,15)
 for(ik in 1:15)
 {
   # Level 2
   
-  mint_interval_score_R1_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R1, series = "total",
+  mint_interval_score_R1_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R1, series = "total",
                                                               fh = ik, index = 4)
   
-  mint_interval_score_R2_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R2, series = "total",
+  mint_interval_score_R2_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R2, series = "total",
                                                               fh = ik, index = 5)
   
-  mint_interval_score_R3_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R3, series = "total",
+  mint_interval_score_R3_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R3, series = "total",
                                                               fh = ik, index = 6)
   
-  mint_interval_score_R4_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R4, series = "total",
+  mint_interval_score_R4_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R4, series = "total",
                                                               fh = ik, index = 7)
   
-  mint_interval_score_R5_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R5, series = "total",
+  mint_interval_score_R5_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R5, series = "total",
                                                               fh = ik, index = 8)
   
-  mint_interval_score_R6_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R6, series = "total",
+  mint_interval_score_R6_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R6, series = "total",
                                                               fh = ik, index = 9)
   
-  mint_interval_score_R7_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R7, series = "total",
+  mint_interval_score_R7_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R7, series = "total",
                                                               fh = ik, index = 10)
   
-  mint_interval_score_R8_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R8, series = "total",
+  mint_interval_score_R8_total_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R8, series = "total",
                                                               fh = ik, index = 11)
   print(ik)
 }
@@ -67,60 +71,60 @@ for(ik in 1:15)
 mint_interval_score_R1_female_dynamic = mint_interval_score_R2_female_dynamic = mint_interval_score_R3_female_dynamic = mint_interval_score_R4_female_dynamic = 
   mint_interval_score_R5_female_dynamic = mint_interval_score_R6_female_dynamic = mint_interval_score_R7_female_dynamic = mint_interval_score_R8_female_dynamic = 
   mint_interval_score_R1_male_dynamic = mint_interval_score_R2_male_dynamic = mint_interval_score_R3_male_dynamic = mint_interval_score_R4_male_dynamic = 
-  mint_interval_score_R5_male_dynamic = mint_interval_score_R6_male_dynamic = mint_interval_score_R7_male_dynamic = mint_interval_score_R8_male_dynamic = vector(,15)
+  mint_interval_score_R5_male_dynamic = mint_interval_score_R6_male_dynamic = mint_interval_score_R7_male_dynamic = mint_interval_score_R8_male_dynamic = rep(0,15)
 
 for(ik in 1:15)
 {
   # Level 3 (female)
   
-  mint_interval_score_R1_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R1, series = "female",
+  mint_interval_score_R1_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R1, series = "female",
                                                                fh = ik, index = 12)
   
-  mint_interval_score_R2_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R2, series = "female",
+  mint_interval_score_R2_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R2, series = "female",
                                                                fh = ik, index = 13)
   
-  mint_interval_score_R3_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R3, series = "female",
+  mint_interval_score_R3_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R3, series = "female",
                                                                fh = ik, index = 14)
   
-  mint_interval_score_R4_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R4, series = "female",
+  mint_interval_score_R4_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R4, series = "female",
                                                                fh = ik, index = 15)
   
-  mint_interval_score_R5_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R5, series = "female",
+  mint_interval_score_R5_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R5, series = "female",
                                                                fh = ik, index = 16)
   
-  mint_interval_score_R6_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R6, series = "female",
+  mint_interval_score_R6_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R6, series = "female",
                                                                fh = ik, index = 17)
   
-  mint_interval_score_R7_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R7, series = "female",
+  mint_interval_score_R7_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R7, series = "female",
                                                                fh = ik, index = 18)
   
-  mint_interval_score_R8_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R8, series = "female",
+  mint_interval_score_R8_female_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R8, series = "female",
                                                                fh = ik, index = 19)
   
   # Level 3 (male)
   
-  mint_interval_score_R1_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R1, series = "male",
+  mint_interval_score_R1_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R1, series = "male",
                                                              fh = ik, index = 20)
   
-  mint_interval_score_R2_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R2, series = "male",
+  mint_interval_score_R2_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R2, series = "male",
                                                              fh = ik, index = 21)
   
-  mint_interval_score_R3_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R3, series = "male",
+  mint_interval_score_R3_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R3, series = "male",
                                                              fh = ik, index = 22)
   
-  mint_interval_score_R4_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R4, series = "male",
+  mint_interval_score_R4_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R4, series = "male",
                                                              fh = ik, index = 23)
   
-  mint_interval_score_R5_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R5, series = "male",
+  mint_interval_score_R5_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R5, series = "male",
                                                              fh = ik, index = 24)
   
-  mint_interval_score_R6_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R6, series = "male",
+  mint_interval_score_R6_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R6, series = "male",
                                                              fh = ik, index = 25)
   
-  mint_interval_score_R7_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R7, series = "male",
+  mint_interval_score_R7_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R7, series = "male",
                                                              fh = ik, index = 26)
   
-  mint_interval_score_R8_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = ind_R8, series = "male",
+  mint_interval_score_R8_male_dynamic[ik] = interval_score_BU_optim(PI_val = mint_hier_comb_dynamic, data_series = mfts_R8, series = "male",
                                                              fh = ik, index = 27)
   print(ik)
 }
@@ -138,7 +142,7 @@ mint_interval_score_P1_total_dynamic  = mint_interval_score_P2_total_dynamic  = 
   mint_interval_score_P33_total_dynamic = mint_interval_score_P34_total_dynamic = mint_interval_score_P35_total_dynamic = mint_interval_score_P36_total_dynamic = 
   mint_interval_score_P37_total_dynamic = mint_interval_score_P38_total_dynamic = mint_interval_score_P39_total_dynamic = mint_interval_score_P40_total_dynamic = 
   mint_interval_score_P41_total_dynamic = mint_interval_score_P42_total_dynamic = mint_interval_score_P43_total_dynamic = mint_interval_score_P44_total_dynamic = 
-  mint_interval_score_P45_total_dynamic = mint_interval_score_P46_total_dynamic = mint_interval_score_P47_total_dynamic = vector(,15)
+  mint_interval_score_P45_total_dynamic = mint_interval_score_P46_total_dynamic = mint_interval_score_P47_total_dynamic = rep(0,15)
 
 for(ik in 1:15)
 {
@@ -298,7 +302,7 @@ mint_interval_score_P1_female_dynamic  = mint_interval_score_P2_female_dynamic  
   mint_interval_score_P33_female_dynamic = mint_interval_score_P34_female_dynamic = mint_interval_score_P35_female_dynamic = mint_interval_score_P36_female_dynamic = 
   mint_interval_score_P37_female_dynamic = mint_interval_score_P38_female_dynamic = mint_interval_score_P39_female_dynamic = mint_interval_score_P40_female_dynamic = 
   mint_interval_score_P41_female_dynamic = mint_interval_score_P42_female_dynamic = mint_interval_score_P43_female_dynamic = mint_interval_score_P44_female_dynamic = 
-  mint_interval_score_P45_female_dynamic = mint_interval_score_P46_female_dynamic = mint_interval_score_P47_female_dynamic = vector(,15)
+  mint_interval_score_P45_female_dynamic = mint_interval_score_P46_female_dynamic = mint_interval_score_P47_female_dynamic = rep(0,15)
 
 for(ik in 1:15)
 {
@@ -456,7 +460,7 @@ mint_interval_score_P1_male_dynamic  = mint_interval_score_P2_male_dynamic  = mi
   mint_interval_score_P33_male_dynamic = mint_interval_score_P34_male_dynamic = mint_interval_score_P35_male_dynamic = mint_interval_score_P36_male_dynamic = 
   mint_interval_score_P37_male_dynamic = mint_interval_score_P38_male_dynamic = mint_interval_score_P39_male_dynamic = mint_interval_score_P40_male_dynamic = 
   mint_interval_score_P41_male_dynamic = mint_interval_score_P42_male_dynamic = mint_interval_score_P43_male_dynamic = mint_interval_score_P44_male_dynamic = 
-  mint_interval_score_P45_male_dynamic = mint_interval_score_P46_male_dynamic = mint_interval_score_P47_male_dynamic = vector(,15)
+  mint_interval_score_P45_male_dynamic = mint_interval_score_P46_male_dynamic = mint_interval_score_P47_male_dynamic = rep(0,15)
 
 for(ik in 1:15)
 {

@@ -2,7 +2,10 @@
 # Multivariate functional time series point forecast (the proposed method)
 ###########################################################################
 
-# state level training residuals
+library(demography)
+library(ftsa)
+
+# Define variables for prefecture level training residuals
 
 mfts_state_train_residual_female = c("mfts_Japan_train_residual_female", "mfts_Hokkaido_train_residual_female", "mfts_Aomori_train_residual_female", 
                                     "mfts_Iwate_train_residual_female", "mfts_Miyagi_train_residual_female", "mfts_Akita_train_residual_female", 
@@ -56,7 +59,7 @@ mfts_state_train_residual_total = c("mfts_Japan_train_residual_total", "mfts_Hok
                                    "mfts_Miyazaki_train_residual_total", "mfts_Kagoshima_train_residual_total", "mfts_Okinawa_train_residual_total")
 
 
-# state level forecasts
+# Define variables for prefecture level forecasts
 
 mfts_state_forc_female = c("mfts_Japan_forc_female",     "mfts_Hokkaido_forc_female",  "mfts_Aomori_forc_female", 
                            "mfts_Iwate_forc_female",     "mfts_Miyagi_forc_female",    "mfts_Akita_forc_female", 
@@ -268,219 +271,7 @@ mfts_state_rmse_total = c("mfts_Japan_rmse_total", "mfts_Hokkaido_rmse_total", "
                           "mfts_Nagasaki_rmse_total", "mfts_Kumamoto_rmse_total", "mfts_Oita_rmse_total", 
                           "mfts_Miyazaki_rmse_total", "mfts_Kagoshima_rmse_total", "mfts_Okinawa_rmse_total")
 
-# forecasted life expectancy at state level
-
-mfts_state_forc_e0_female = c("mfts_Japan_forc_e0_female",     "mfts_Hokkaido_forc_e0_female",  "mfts_Aomori_forc_e0_female", 
-                              "mfts_Iwate_forc_e0_female",     "mfts_Miyagi_forc_e0_female",    "mfts_Akita_forc_e0_female", 
-                              "mfts_Yamagata_forc_e0_female",  "mfts_Fukushima_forc_e0_female", "mfts_Ibaraki_forc_e0_female", 
-                              "mfts_Tochigi_forc_e0_female",   "mfts_Gunma_forc_e0_female",     "mfts_Saitama_forc_e0_female", 
-                              "mfts_Chiba_forc_e0_female",     "mfts_Tokyo_forc_e0_female",     "mfts_Kanagawa_forc_e0_female",
-                              "mfts_Niigata_forc_e0_female",   "mfts_Toyama_forc_e0_female",    "mfts_Ishikawa_forc_e0_female", 
-                              "mfts_Fukui_forc_e0_female",     "mfts_Yamanashi_forc_e0_female", "mfts_Nagano_forc_e0_female", 
-                              "mfts_Gifu_forc_e0_female",      "mfts_Shizuoka_forc_e0_female",  "mfts_Aichi_forc_e0_female",
-                              "mfts_Mie_forc_e0_female",       "mfts_Shiga_forc_e0_female",     "mfts_Kyoto_forc_e0_female", 
-                              "mfts_Osaka_forc_e0_female",     "mfts_Hyogo_forc_e0_female",     "mfts_Nara_forc_e0_female", 
-                              "mfts_Wakayama_forc_e0_female",  "mfts_Tottori_forc_e0_female",   "mfts_Shimane_forc_e0_female",
-                              "mfts_Okayama_forc_e0_female",   "mfts_Hiroshima_forc_e0_female", "mfts_Yamaguchi_forc_e0_female", 
-                              "mfts_Tokushima_forc_e0_female", "mfts_Kagawa_forc_e0_female",    "mfts_Ehime_forc_e0_female", 
-                              "mfts_Kochi_forc_e0_female",     "mfts_Fukuoka_forc_e0_female",   "mfts_Saga_forc_e0_female", 
-                              "mfts_Nagasaki_forc_e0_female",  "mfts_Kumamoto_forc_e0_female",  "mfts_Oita_forc_e0_female", 
-                              "mfts_Miyazaki_forc_e0_female",  "mfts_Kagoshima_forc_e0_female", "mfts_Okinawa_forc_e0_female")
-
-mfts_state_forc_e0_male = c("mfts_Japan_forc_e0_male",     "mfts_Hokkaido_forc_e0_male",  "mfts_Aomori_forc_e0_male", 
-                            "mfts_Iwate_forc_e0_male",     "mfts_Miyagi_forc_e0_male",    "mfts_Akita_forc_e0_male", 
-                            "mfts_Yamagata_forc_e0_male",  "mfts_Fukushima_forc_e0_male", "mfts_Ibaraki_forc_e0_male", 
-                            "mfts_Tochigi_forc_e0_male",   "mfts_Gunma_forc_e0_male",     "mfts_Saitama_forc_e0_male", 
-                            "mfts_Chiba_forc_e0_male",     "mfts_Tokyo_forc_e0_male",     "mfts_Kanagawa_forc_e0_male",
-                            "mfts_Niigata_forc_e0_male",   "mfts_Toyama_forc_e0_male",    "mfts_Ishikawa_forc_e0_male", 
-                            "mfts_Fukui_forc_e0_male",     "mfts_Yamanashi_forc_e0_male", "mfts_Nagano_forc_e0_male", 
-                            "mfts_Gifu_forc_e0_male",      "mfts_Shizuoka_forc_e0_male",  "mfts_Aichi_forc_e0_male",
-                            "mfts_Mie_forc_e0_male",       "mfts_Shiga_forc_e0_male",     "mfts_Kyoto_forc_e0_male", 
-                            "mfts_Osaka_forc_e0_male",     "mfts_Hyogo_forc_e0_male",     "mfts_Nara_forc_e0_male", 
-                            "mfts_Wakayama_forc_e0_male",  "mfts_Tottori_forc_e0_male",   "mfts_Shimane_forc_e0_male",
-                            "mfts_Okayama_forc_e0_male",   "mfts_Hiroshima_forc_e0_male", "mfts_Yamaguchi_forc_e0_male", 
-                            "mfts_Tokushima_forc_e0_male", "mfts_Kagawa_forc_e0_male",    "mfts_Ehime_forc_e0_male", 
-                            "mfts_Kochi_forc_e0_male",     "mfts_Fukuoka_forc_e0_male",   "mfts_Saga_forc_e0_male", 
-                            "mfts_Nagasaki_forc_e0_male",  "mfts_Kumamoto_forc_e0_male",  "mfts_Oita_forc_e0_male", 
-                            "mfts_Miyazaki_forc_e0_male",  "mfts_Kagoshima_forc_e0_male", "mfts_Okinawa_forc_e0_male")
-
-mfts_state_forc_e0_total = c("mfts_Japan_forc_e0_total",     "mfts_Hokkaido_forc_e0_total",  "mfts_Aomori_forc_e0_total", 
-                             "mfts_Iwate_forc_e0_total",     "mfts_Miyagi_forc_e0_total",    "mfts_Akita_forc_e0_total", 
-                             "mfts_Yamagata_forc_e0_total",  "mfts_Fukushima_forc_e0_total", "mfts_Ibaraki_forc_e0_total", 
-                             "mfts_Tochigi_forc_e0_total",   "mfts_Gunma_forc_e0_total",     "mfts_Saitama_forc_e0_total", 
-                             "mfts_Chiba_forc_e0_total",     "mfts_Tokyo_forc_e0_total",     "mfts_Kanagawa_forc_e0_total",
-                             "mfts_Niigata_forc_e0_total",   "mfts_Toyama_forc_e0_total",    "mfts_Ishikawa_forc_e0_total", 
-                             "mfts_Fukui_forc_e0_total",     "mfts_Yamanashi_forc_e0_total", "mfts_Nagano_forc_e0_total", 
-                             "mfts_Gifu_forc_e0_total",      "mfts_Shizuoka_forc_e0_total",  "mfts_Aichi_forc_e0_total",
-                             "mfts_Mie_forc_e0_total",       "mfts_Shiga_forc_e0_total",     "mfts_Kyoto_forc_e0_total", 
-                             "mfts_Osaka_forc_e0_total",     "mfts_Hyogo_forc_e0_total",     "mfts_Nara_forc_e0_total", 
-                             "mfts_Wakayama_forc_e0_total",  "mfts_Tottori_forc_e0_total",   "mfts_Shimane_forc_e0_total",
-                             "mfts_Okayama_forc_e0_total",   "mfts_Hiroshima_forc_e0_total", "mfts_Yamaguchi_forc_e0_total", 
-                             "mfts_Tokushima_forc_e0_total", "mfts_Kagawa_forc_e0_total",    "mfts_Ehime_forc_e0_total", 
-                             "mfts_Kochi_forc_e0_total",     "mfts_Fukuoka_forc_e0_total",   "mfts_Saga_forc_e0_total", 
-                             "mfts_Nagasaki_forc_e0_total",  "mfts_Kumamoto_forc_e0_total",  "mfts_Oita_forc_e0_total", 
-                             "mfts_Miyazaki_forc_e0_total",  "mfts_Kagoshima_forc_e0_total", "mfts_Okinawa_forc_e0_total")
-
-# Mean Error of forecasted life expectancy
-
-mfts_state_me_e0_female = c("mfts_Japan_me_e0_female", "mfts_Hokkaido_me_e0_female", "mfts_Aomori_me_e0_female", 
-                            "mfts_Iwate_me_e0_female", "mfts_Miyagi_me_e0_female", "mfts_Akita_me_e0_female", 
-                            "mfts_Yamagata_me_e0_female", "mfts_Fukushima_me_e0_female", "mfts_Ibaraki_me_e0_female", 
-                            "mfts_Tochigi_me_e0_female", "mfts_Gunma_me_e0_female", "mfts_Saitama_me_e0_female", 
-                            "mfts_Chiba_me_e0_female", "mfts_Tokyo_me_e0_female", "mfts_Kanagawa_me_e0_female",
-                            "mfts_Niigata_me_e0_female", "mfts_Toyama_me_e0_female", "mfts_Ishikawa_me_e0_female", 
-                            "mfts_Fukui_me_e0_female", "mfts_Yamanashi_me_e0_female", "mfts_Nagano_me_e0_female", 
-                            "mfts_Gifu_me_e0_female", "mfts_Shizuoka_me_e0_female", "mfts_Aichi_me_e0_female",
-                            "mfts_Mie_me_e0_female", "mfts_Shiga_me_e0_female", "mfts_Kyoto_me_e0_female", 
-                            "mfts_Osaka_me_e0_female", "mfts_Hyogo_me_e0_female", "mfts_Nara_me_e0_female", 
-                            "mfts_Wakayama_me_e0_female", "mfts_Tottori_me_e0_female", "mfts_Shimane_me_e0_female",
-                            "mfts_Okayama_me_e0_female", "mfts_Hiroshima_me_e0_female", "mfts_Yamaguchi_me_e0_female", 
-                            "mfts_Tokushima_me_e0_female", "mfts_Kagawa_me_e0_female", "mfts_Ehime_me_e0_female", 
-                            "mfts_Kochi_me_e0_female", "mfts_Fukuoka_me_e0_female", "mfts_Saga_me_e0_female", 
-                            "mfts_Nagasaki_me_e0_female", "mfts_Kumamoto_me_e0_female", "mfts_Oita_me_e0_female", 
-                            "mfts_Miyazaki_me_e0_female", "mfts_Kagoshima_me_e0_female", "mfts_Okinawa_me_e0_female")
-
-mfts_state_me_e0_male = c("mfts_Japan_me_e0_male", "mfts_Hokkaido_me_e0_male", "mfts_Aomori_me_e0_male", 
-                          "mfts_Iwate_me_e0_male", "mfts_Miyagi_me_e0_male", "mfts_Akita_me_e0_male", 
-                          "mfts_Yamagata_me_e0_male", "mfts_Fukushima_me_e0_male", "mfts_Ibaraki_me_e0_male", 
-                          "mfts_Tochigi_me_e0_male", "mfts_Gunma_me_e0_male", "mfts_Saitama_me_e0_male", 
-                          "mfts_Chiba_me_e0_male", "mfts_Tokyo_me_e0_male", "mfts_Kanagawa_me_e0_male",
-                          "mfts_Niigata_me_e0_male", "mfts_Toyama_me_e0_male", "mfts_Ishikawa_me_e0_male", 
-                          "mfts_Fukui_me_e0_male", "mfts_Yamanashi_me_e0_male", "mfts_Nagano_me_e0_male", 
-                          "mfts_Gifu_me_e0_male", "mfts_Shizuoka_me_e0_male", "mfts_Aichi_me_e0_male",
-                          "mfts_Mie_me_e0_male", "mfts_Shiga_me_e0_male", "mfts_Kyoto_me_e0_male", 
-                          "mfts_Osaka_me_e0_male", "mfts_Hyogo_me_e0_male", "mfts_Nara_me_e0_male", 
-                          "mfts_Wakayama_me_e0_male", "mfts_Tottori_me_e0_male", "mfts_Shimane_me_e0_male",
-                          "mfts_Okayama_me_e0_male", "mfts_Hiroshima_me_e0_male", "mfts_Yamaguchi_me_e0_male", 
-                          "mfts_Tokushima_me_e0_male", "mfts_Kagawa_me_e0_male", "mfts_Ehime_me_e0_male", 
-                          "mfts_Kochi_me_e0_male", "mfts_Fukuoka_me_e0_male", "mfts_Saga_me_e0_male", 
-                          "mfts_Nagasaki_me_e0_male", "mfts_Kumamoto_me_e0_male", "mfts_Oita_me_e0_male", 
-                          "mfts_Miyazaki_me_e0_male", "mfts_Kagoshima_me_e0_male", "mfts_Okinawa_me_e0_male")
-
-mfts_state_me_e0_total = c("mfts_Japan_me_e0_total", "mfts_Hokkaido_me_e0_total", "mfts_Aomori_me_e0_total", 
-                           "mfts_Iwate_me_e0_total", "mfts_Miyagi_me_e0_total", "mfts_Akita_me_e0_total", 
-                           "mfts_Yamagata_me_e0_total", "mfts_Fukushima_me_e0_total", "mfts_Ibaraki_me_e0_total", 
-                           "mfts_Tochigi_me_e0_total", "mfts_Gunma_me_e0_total", "mfts_Saitama_me_e0_total", 
-                           "mfts_Chiba_me_e0_total", "mfts_Tokyo_me_e0_total", "mfts_Kanagawa_me_e0_total",
-                           "mfts_Niigata_me_e0_total", "mfts_Toyama_me_e0_total", "mfts_Ishikawa_me_e0_total", 
-                           "mfts_Fukui_me_e0_total", "mfts_Yamanashi_me_e0_total", "mfts_Nagano_me_e0_total", 
-                           "mfts_Gifu_me_e0_total", "mfts_Shizuoka_me_e0_total", "mfts_Aichi_me_e0_total",
-                           "mfts_Mie_me_e0_total", "mfts_Shiga_me_e0_total", "mfts_Kyoto_me_e0_total", 
-                           "mfts_Osaka_me_e0_total", "mfts_Hyogo_me_e0_total", "mfts_Nara_me_e0_total", 
-                           "mfts_Wakayama_me_e0_total", "mfts_Tottori_me_e0_total", "mfts_Shimane_me_e0_total",
-                           "mfts_Okayama_me_e0_total", "mfts_Hiroshima_me_e0_total", "mfts_Yamaguchi_me_e0_total", 
-                           "mfts_Tokushima_me_e0_total", "mfts_Kagawa_me_e0_total", "mfts_Ehime_me_e0_total", 
-                           "mfts_Kochi_me_e0_total", "mfts_Fukuoka_me_e0_total", "mfts_Saga_me_e0_total", 
-                           "mfts_Nagasaki_me_e0_total", "mfts_Kumamoto_me_e0_total", "mfts_Oita_me_e0_total", 
-                           "mfts_Miyazaki_me_e0_total", "mfts_Kagoshima_me_e0_total", "mfts_Okinawa_me_e0_total")
-
-# Mean Absolute Error of forecasted life expectancy
-
-mfts_state_mae_e0_female = c("mfts_Japan_mae_e0_female", "mfts_Hokkaido_mae_e0_female", "mfts_Aomori_mae_e0_female", 
-                             "mfts_Iwate_mae_e0_female", "mfts_Miyagi_mae_e0_female", "mfts_Akita_mae_e0_female", 
-                             "mfts_Yamagata_mae_e0_female", "mfts_Fukushima_mae_e0_female", "mfts_Ibaraki_mae_e0_female", 
-                             "mfts_Tochigi_mae_e0_female", "mfts_Gunma_mae_e0_female", "mfts_Saitama_mae_e0_female", 
-                             "mfts_Chiba_mae_e0_female", "mfts_Tokyo_mae_e0_female", "mfts_Kanagawa_mae_e0_female",
-                             "mfts_Niigata_mae_e0_female", "mfts_Toyama_mae_e0_female", "mfts_Ishikawa_mae_e0_female", 
-                             "mfts_Fukui_mae_e0_female", "mfts_Yamanashi_mae_e0_female", "mfts_Nagano_mae_e0_female", 
-                             "mfts_Gifu_mae_e0_female", "mfts_Shizuoka_mae_e0_female", "mfts_Aichi_mae_e0_female",
-                             "mfts_Mie_mae_e0_female", "mfts_Shiga_mae_e0_female", "mfts_Kyoto_mae_e0_female", 
-                             "mfts_Osaka_mae_e0_female", "mfts_Hyogo_mae_e0_female", "mfts_Nara_mae_e0_female", 
-                             "mfts_Wakayama_mae_e0_female", "mfts_Tottori_mae_e0_female", "mfts_Shimane_mae_e0_female",
-                             "mfts_Okayama_mae_e0_female", "mfts_Hiroshima_mae_e0_female", "mfts_Yamaguchi_mae_e0_female", 
-                             "mfts_Tokushima_mae_e0_female", "mfts_Kagawa_mae_e0_female", "mfts_Ehime_mae_e0_female", 
-                             "mfts_Kochi_mae_e0_female", "mfts_Fukuoka_mae_e0_female", "mfts_Saga_mae_e0_female", 
-                             "mfts_Nagasaki_mae_e0_female", "mfts_Kumamoto_mae_e0_female", "mfts_Oita_mae_e0_female", 
-                             "mfts_Miyazaki_mae_e0_female", "mfts_Kagoshima_mae_e0_female", "mfts_Okinawa_mae_e0_female")
-
-mfts_state_mae_e0_male = c("mfts_Japan_mae_e0_male", "mfts_Hokkaido_mae_e0_male", "mfts_Aomori_mae_e0_male", 
-                           "mfts_Iwate_mae_e0_male", "mfts_Miyagi_mae_e0_male", "mfts_Akita_mae_e0_male", 
-                           "mfts_Yamagata_mae_e0_male", "mfts_Fukushima_mae_e0_male", "mfts_Ibaraki_mae_e0_male", 
-                           "mfts_Tochigi_mae_e0_male", "mfts_Gunma_mae_e0_male", "mfts_Saitama_mae_e0_male", 
-                           "mfts_Chiba_mae_e0_male", "mfts_Tokyo_mae_e0_male", "mfts_Kanagawa_mae_e0_male",
-                           "mfts_Niigata_mae_e0_male", "mfts_Toyama_mae_e0_male", "mfts_Ishikawa_mae_e0_male", 
-                           "mfts_Fukui_mae_e0_male", "mfts_Yamanashi_mae_e0_male", "mfts_Nagano_mae_e0_male", 
-                           "mfts_Gifu_mae_e0_male", "mfts_Shizuoka_mae_e0_male", "mfts_Aichi_mae_e0_male",
-                           "mfts_Mie_mae_e0_male", "mfts_Shiga_mae_e0_male", "mfts_Kyoto_mae_e0_male", 
-                           "mfts_Osaka_mae_e0_male", "mfts_Hyogo_mae_e0_male", "mfts_Nara_mae_e0_male", 
-                           "mfts_Wakayama_mae_e0_male", "mfts_Tottori_mae_e0_male", "mfts_Shimane_mae_e0_male",
-                           "mfts_Okayama_mae_e0_male", "mfts_Hiroshima_mae_e0_male", "mfts_Yamaguchi_mae_e0_male", 
-                           "mfts_Tokushima_mae_e0_male", "mfts_Kagawa_mae_e0_male", "mfts_Ehime_mae_e0_male", 
-                           "mfts_Kochi_mae_e0_male", "mfts_Fukuoka_mae_e0_male", "mfts_Saga_mae_e0_male", 
-                           "mfts_Nagasaki_mae_e0_male", "mfts_Kumamoto_mae_e0_male", "mfts_Oita_mae_e0_male", 
-                           "mfts_Miyazaki_mae_e0_male", "mfts_Kagoshima_mae_e0_male", "mfts_Okinawa_mae_e0_male")
-
-mfts_state_mae_e0_total = c("mfts_Japan_mae_e0_total", "mfts_Hokkaido_mae_e0_total", "mfts_Aomori_mae_e0_total", 
-                            "mfts_Iwate_mae_e0_total", "mfts_Miyagi_mae_e0_total", "mfts_Akita_mae_e0_total", 
-                            "mfts_Yamagata_mae_e0_total", "mfts_Fukushima_mae_e0_total", "mfts_Ibaraki_mae_e0_total", 
-                            "mfts_Tochigi_mae_e0_total", "mfts_Gunma_mae_e0_total", "mfts_Saitama_mae_e0_total", 
-                            "mfts_Chiba_mae_e0_total", "mfts_Tokyo_mae_e0_total", "mfts_Kanagawa_mae_e0_total",
-                            "mfts_Niigata_mae_e0_total", "mfts_Toyama_mae_e0_total", "mfts_Ishikawa_mae_e0_total", 
-                            "mfts_Fukui_mae_e0_total", "mfts_Yamanashi_mae_e0_total", "mfts_Nagano_mae_e0_total", 
-                            "mfts_Gifu_mae_e0_total", "mfts_Shizuoka_mae_e0_total", "mfts_Aichi_mae_e0_total",
-                            "mfts_Mie_mae_e0_total", "mfts_Shiga_mae_e0_total", "mfts_Kyoto_mae_e0_total", 
-                            "mfts_Osaka_mae_e0_total", "mfts_Hyogo_mae_e0_total", "mfts_Nara_mae_e0_total", 
-                            "mfts_Wakayama_mae_e0_total", "mfts_Tottori_mae_e0_total", "mfts_Shimane_mae_e0_total",
-                            "mfts_Okayama_mae_e0_total", "mfts_Hiroshima_mae_e0_total", "mfts_Yamaguchi_mae_e0_total", 
-                            "mfts_Tokushima_mae_e0_total", "mfts_Kagawa_mae_e0_total", "mfts_Ehime_mae_e0_total", 
-                            "mfts_Kochi_mae_e0_total", "mfts_Fukuoka_mae_e0_total", "mfts_Saga_mae_e0_total", 
-                            "mfts_Nagasaki_mae_e0_total", "mfts_Kumamoto_mae_e0_total", "mfts_Oita_mae_e0_total", 
-                            "mfts_Miyazaki_mae_e0_total", "mfts_Kagoshima_mae_e0_total", "mfts_Okinawa_mae_e0_total")
-
-# Root Mean Square Error of forecasted life expectancy
-
-mfts_state_rmse_e0_female = c("mfts_Japan_rmse_e0_female", "mfts_Hokkaido_rmse_e0_female", "mfts_Aomori_rmse_e0_female", 
-                              "mfts_Iwate_rmse_e0_female", "mfts_Miyagi_rmse_e0_female", "mfts_Akita_rmse_e0_female", 
-                              "mfts_Yamagata_rmse_e0_female", "mfts_Fukushima_rmse_e0_female", "mfts_Ibaraki_rmse_e0_female", 
-                              "mfts_Tochigi_rmse_e0_female", "mfts_Gunma_rmse_e0_female", "mfts_Saitama_rmse_e0_female", 
-                              "mfts_Chiba_rmse_e0_female", "mfts_Tokyo_rmse_e0_female", "mfts_Kanagawa_rmse_e0_female",
-                              "mfts_Niigata_rmse_e0_female", "mfts_Toyama_rmse_e0_female", "mfts_Ishikawa_rmse_e0_female", 
-                              "mfts_Fukui_rmse_e0_female", "mfts_Yamanashi_rmse_e0_female", "mfts_Nagano_rmse_e0_female", 
-                              "mfts_Gifu_rmse_e0_female", "mfts_Shizuoka_rmse_e0_female", "mfts_Aichi_rmse_e0_female",
-                              "mfts_Mie_rmse_e0_female", "mfts_Shiga_rmse_e0_female", "mfts_Kyoto_rmse_e0_female", 
-                              "mfts_Osaka_rmse_e0_female", "mfts_Hyogo_rmse_e0_female", "mfts_Nara_rmse_e0_female", 
-                              "mfts_Wakayama_rmse_e0_female", "mfts_Tottori_rmse_e0_female", "mfts_Shimane_rmse_e0_female",
-                              "mfts_Okayama_rmse_e0_female", "mfts_Hiroshima_rmse_e0_female", "mfts_Yamaguchi_rmse_e0_female", 
-                              "mfts_Tokushima_rmse_e0_female", "mfts_Kagawa_rmse_e0_female", "mfts_Ehime_rmse_e0_female", 
-                              "mfts_Kochi_rmse_e0_female", "mfts_Fukuoka_rmse_e0_female", "mfts_Saga_rmse_e0_female", 
-                              "mfts_Nagasaki_rmse_e0_female", "mfts_Kumamoto_rmse_e0_female", "mfts_Oita_rmse_e0_female", 
-                              "mfts_Miyazaki_rmse_e0_female", "mfts_Kagoshima_rmse_e0_female", "mfts_Okinawa_rmse_e0_female")
-
-mfts_state_rmse_e0_male = c("mfts_Japan_rmse_e0_male", "mfts_Hokkaido_rmse_e0_male", "mfts_Aomori_rmse_e0_male", 
-                            "mfts_Iwate_rmse_e0_male", "mfts_Miyagi_rmse_e0_male", "mfts_Akita_rmse_e0_male", 
-                            "mfts_Yamagata_rmse_e0_male", "mfts_Fukushima_rmse_e0_male", "mfts_Ibaraki_rmse_e0_male", 
-                            "mfts_Tochigi_rmse_e0_male", "mfts_Gunma_rmse_e0_male", "mfts_Saitama_rmse_e0_male", 
-                            "mfts_Chiba_rmse_e0_male", "mfts_Tokyo_rmse_e0_male", "mfts_Kanagawa_rmse_e0_male",
-                            "mfts_Niigata_rmse_e0_male", "mfts_Toyama_rmse_e0_male", "mfts_Ishikawa_rmse_e0_male", 
-                            "mfts_Fukui_rmse_e0_male", "mfts_Yamanashi_rmse_e0_male", "mfts_Nagano_rmse_e0_male", 
-                            "mfts_Gifu_rmse_e0_male", "mfts_Shizuoka_rmse_e0_male", "mfts_Aichi_rmse_e0_male",
-                            "mfts_Mie_rmse_e0_male", "mfts_Shiga_rmse_e0_male", "mfts_Kyoto_rmse_e0_male", 
-                            "mfts_Osaka_rmse_e0_male", "mfts_Hyogo_rmse_e0_male", "mfts_Nara_rmse_e0_male", 
-                            "mfts_Wakayama_rmse_e0_male", "mfts_Tottori_rmse_e0_male", "mfts_Shimane_rmse_e0_male",
-                            "mfts_Okayama_rmse_e0_male", "mfts_Hiroshima_rmse_e0_male", "mfts_Yamaguchi_rmse_e0_male", 
-                            "mfts_Tokushima_rmse_e0_male", "mfts_Kagawa_rmse_e0_male", "mfts_Ehime_rmse_e0_male", 
-                            "mfts_Kochi_rmse_e0_male", "mfts_Fukuoka_rmse_e0_male", "mfts_Saga_rmse_e0_male", 
-                            "mfts_Nagasaki_rmse_e0_male", "mfts_Kumamoto_rmse_e0_male", "mfts_Oita_rmse_e0_male", 
-                            "mfts_Miyazaki_rmse_e0_male", "mfts_Kagoshima_rmse_e0_male", "mfts_Okinawa_rmse_e0_male")
-
-mfts_state_rmse_e0_total = c("mfts_Japan_rmse_e0_total", "mfts_Hokkaido_rmse_e0_total", "mfts_Aomori_rmse_e0_total", 
-                             "mfts_Iwate_rmse_e0_total", "mfts_Miyagi_rmse_e0_total", "mfts_Akita_rmse_e0_total", 
-                             "mfts_Yamagata_rmse_e0_total", "mfts_Fukushima_rmse_e0_total", "mfts_Ibaraki_rmse_e0_total", 
-                             "mfts_Tochigi_rmse_e0_total", "mfts_Gunma_rmse_e0_total", "mfts_Saitama_rmse_e0_total", 
-                             "mfts_Chiba_rmse_e0_total", "mfts_Tokyo_rmse_e0_total", "mfts_Kanagawa_rmse_e0_total",
-                             "mfts_Niigata_rmse_e0_total", "mfts_Toyama_rmse_e0_total", "mfts_Ishikawa_rmse_e0_total", 
-                             "mfts_Fukui_rmse_e0_total", "mfts_Yamanashi_rmse_e0_total", "mfts_Nagano_rmse_e0_total", 
-                             "mfts_Gifu_rmse_e0_total", "mfts_Shizuoka_rmse_e0_total", "mfts_Aichi_rmse_e0_total",
-                             "mfts_Mie_rmse_e0_total", "mfts_Shiga_rmse_e0_total", "mfts_Kyoto_rmse_e0_total", 
-                             "mfts_Osaka_rmse_e0_total", "mfts_Hyogo_rmse_e0_total", "mfts_Nara_rmse_e0_total", 
-                             "mfts_Wakayama_rmse_e0_total", "mfts_Tottori_rmse_e0_total", "mfts_Shimane_rmse_e0_total",
-                             "mfts_Okayama_rmse_e0_total", "mfts_Hiroshima_rmse_e0_total", "mfts_Yamaguchi_rmse_e0_total", 
-                             "mfts_Tokushima_rmse_e0_total", "mfts_Kagawa_rmse_e0_total", "mfts_Ehime_rmse_e0_total", 
-                             "mfts_Kochi_rmse_e0_total", "mfts_Fukuoka_rmse_e0_total", "mfts_Saga_rmse_e0_total", 
-                             "mfts_Nagasaki_rmse_e0_total", "mfts_Kumamoto_rmse_e0_total", "mfts_Oita_rmse_e0_total", 
-                             "mfts_Miyazaki_rmse_e0_total", "mfts_Kagoshima_rmse_e0_total", "mfts_Okinawa_rmse_e0_total")
-
-# region level training residuals
+# Define variables for region level training residuals
 
 mfts_region_train_residual_female = c("mfts_region_R1_train_residual_female", "mfts_region_R2_train_residual_female", "mfts_region_R3_train_residual_female", 
                                      "mfts_region_R4_train_residual_female", "mfts_region_R5_train_residual_female", "mfts_region_R6_train_residual_female", 
@@ -495,7 +286,7 @@ mfts_region_train_residual_total = c("mfts_region_R1_train_residual_total", "mft
                                     "mfts_region_R7_train_residual_total", "mfts_region_R8_train_residual_total")
 
 
-# region level forecasts
+# Define variables for region level forecasts
 
 mfts_region_forc_female = c("mfts_region_R1_forc_female", "mfts_region_R2_forc_female", "mfts_region_R3_forc_female", 
                             "mfts_region_R4_forc_female", "mfts_region_R5_forc_female", "mfts_region_R6_forc_female", 
@@ -551,63 +342,8 @@ mfts_region_rmse_total = c("mfts_region_R1_rmse_total", "mfts_region_R2_rmse_tot
                            "mfts_region_R4_rmse_total", "mfts_region_R5_rmse_total", "mfts_region_R6_rmse_total", 
                            "mfts_region_R7_rmse_total", "mfts_region_R8_rmse_total")
 
-# region level forecasted life expectancy
 
-mfts_region_forc_e0_female = c("mfts_region_R1_forc_e0_female", "mfts_region_R2_forc_e0_female", "mfts_region_R3_forc_e0_female", 
-                               "mfts_region_R4_forc_e0_female", "mfts_region_R5_forc_e0_female", "mfts_region_R6_forc_e0_female", 
-                               "mfts_region_R7_forc_e0_female", "mfts_region_R8_forc_e0_female")
-
-mfts_region_forc_e0_male = c("mfts_region_R1_forc_e0_male", "mfts_region_R2_forc_e0_male", "mfts_region_R3_forc_e0_male", 
-                             "mfts_region_R4_forc_e0_male", "mfts_region_R5_forc_e0_male", "mfts_region_R6_forc_e0_male", 
-                             "mfts_region_R7_forc_e0_male", "mfts_region_R8_forc_e0_male")
-
-mfts_region_forc_e0_total = c("mfts_region_R1_forc_e0_total", "mfts_region_R2_forc_e0_total", "mfts_region_R3_forc_e0_total", 
-                              "mfts_region_R4_forc_e0_total", "mfts_region_R5_forc_e0_total", "mfts_region_R6_forc_e0_total", 
-                              "mfts_region_R7_forc_e0_total", "mfts_region_R8_forc_e0_total")
-
-# Mean Error of region level forecasted life expectancy
-
-mfts_region_me_e0_female = c("mfts_region_R1_me_e0_female", "mfts_region_R2_me_e0_female", "mfts_region_R3_me_e0_female", 
-                             "mfts_region_R4_me_e0_female", "mfts_region_R5_me_e0_female", "mfts_region_R6_me_e0_female", 
-                             "mfts_region_R7_me_e0_female", "mfts_region_R8_me_e0_female")
-
-mfts_region_me_e0_male = c("mfts_region_R1_me_e0_male", "mfts_region_R2_me_e0_male", "mfts_region_R3_me_e0_male", 
-                           "mfts_region_R4_me_e0_male", "mfts_region_R5_me_e0_male", "mfts_region_R6_me_e0_male", 
-                           "mfts_region_R7_me_e0_male", "mfts_region_R8_me_e0_male")
-
-mfts_region_me_e0_total = c("mfts_region_R1_me_e0_total", "mfts_region_R2_me_e0_total", "mfts_region_R3_me_e0_total", 
-                            "mfts_region_R4_me_e0_total", "mfts_region_R5_me_e0_total", "mfts_region_R6_me_e0_total", 
-                            "mfts_region_R7_me_e0_total", "mfts_region_R8_me_e0_total")
-
-# Mean Absolute Error of region level forecasted life expectancy
-
-mfts_region_mae_e0_female = c("mfts_region_R1_mae_e0_female", "mfts_region_R2_mae_e0_female", "mfts_region_R3_mae_e0_female", 
-                              "mfts_region_R4_mae_e0_female", "mfts_region_R5_mae_e0_female", "mfts_region_R6_mae_e0_female", 
-                              "mfts_region_R7_mae_e0_female", "mfts_region_R8_mae_e0_female")
-
-mfts_region_mae_e0_male = c("mfts_region_R1_mae_e0_male", "mfts_region_R2_mae_e0_male", "mfts_region_R3_mae_e0_male", 
-                            "mfts_region_R4_mae_e0_male", "mfts_region_R5_mae_e0_male", "mfts_region_R6_mae_e0_male", 
-                            "mfts_region_R7_mae_e0_male", "mfts_region_R8_mae_e0_male")
-
-mfts_region_mae_e0_total = c("mfts_region_R1_mae_e0_total", "mfts_region_R2_mae_e0_total", "mfts_region_R3_mae_e0_total", 
-                             "mfts_region_R4_mae_e0_total", "mfts_region_R5_mae_e0_total", "mfts_region_R6_mae_e0_total", 
-                             "mfts_region_R7_mae_e0_total", "mfts_region_R8_mae_e0_total")
-
-# Root Mean Square Error of region level forecasted life expectancy
-
-mfts_region_rmse_e0_female = c("mfts_region_R1_rmse_e0_female", "mfts_region_R2_rmse_e0_female", "mfts_region_R3_rmse_e0_female", 
-                               "mfts_region_R4_rmse_e0_female", "mfts_region_R5_rmse_e0_female", "mfts_region_R6_rmse_e0_female", 
-                               "mfts_region_R7_rmse_e0_female", "mfts_region_R8_rmse_e0_female")
-
-mfts_region_rmse_e0_male = c("mfts_region_R1_rmse_e0_male", "mfts_region_R2_rmse_e0_male", "mfts_region_R3_rmse_e0_male", 
-                             "mfts_region_R4_rmse_e0_male", "mfts_region_R5_rmse_e0_male", "mfts_region_R6_rmse_e0_male", 
-                             "mfts_region_R7_rmse_e0_male", "mfts_region_R8_rmse_e0_male")
-
-mfts_region_rmse_e0_total = c("mfts_region_R1_rmse_e0_total", "mfts_region_R2_rmse_e0_total", "mfts_region_R3_rmse_e0_total", 
-                              "mfts_region_R4_rmse_e0_total", "mfts_region_R5_rmse_e0_total", "mfts_region_R6_rmse_e0_total", 
-                              "mfts_region_R7_rmse_e0_total", "mfts_region_R8_rmse_e0_total")
-
-# multivarite functional time series model function
+# Define a function for multivariate FTS forecasting
 
 mfts <- function(dat, pcamethod = c("static", "dynamic"), year_horizon)
 {
@@ -650,7 +386,7 @@ mfts <- function(dat, pcamethod = c("static", "dynamic"), year_horizon)
     data_dum = comb_object
 
     C_0 = long_run_covariance_estimation(data_dum, H = 3, C0 = 3)
-    eigen_decomp = eigen(C_0$BT_FT_fix_C0)
+    eigen_decomp = eigen(C_0)
     dynamic_order = head(which(cumsum(eigen_decomp$values)/sum(eigen_decomp$values) >= 0.95),1)
     dynamic_basis = as.matrix(eigen_decomp$vectors[,1:dynamic_order])
     dynamic_scores = t(dynamic_basis) %*% data_dum
@@ -680,7 +416,7 @@ mfts <- function(dat, pcamethod = c("static", "dynamic"), year_horizon)
 
 
 
-# function for prefecture forecast
+# Define a function to make point forecasts at prefecture level
 
 me   = ftsa:::me
 mae  = ftsa:::mae
@@ -691,7 +427,6 @@ mfts_back_test <- function(iw,  pcamethod = c("static", "dynamic"), fmethod = "c
   forecast_year = (year_horizon + 1)
   n_year = tail(get(state_smooth[1])$year,1) - forecast_year
   res_male = res_female = array(NA, dim = c(year_horizon, 101, year_horizon))
-  e0_female = e0_male = matrix(NA, year_horizon, year_horizon)
   train_residual_female = train_residual_male = list()
   
   pcamethod = match.arg(pcamethod)
@@ -707,15 +442,9 @@ mfts_back_test <- function(iw,  pcamethod = c("static", "dynamic"), fmethod = "c
     res_female[,,ij] = t(fun_forc$fore_res[1:101,])
     res_male[,,ij]   = t(fun_forc$fore_res[102:202,])
     
-    for(ik in 1:year_horizon)
-    {
-      e0_female[ik,ij] = demography:::lt(fun_forc$fore_res[1:101,ik], startage=0, agegroup=1, sex="female")$ex[1]
-      e0_male[ik,ij]   = demography:::lt(fun_forc$fore_res[102:202,ik], startage=0, agegroup=1, sex="male")$ex[1]
-    }
   }
   # MAE & RMSE
-  female_me = male_me = female_mae = male_mae = female_rmse = male_rmse = 
-    e0_female_me = e0_male_me = e0_female_mae = e0_male_mae = e0_female_rmse = e0_male_rmse = vector("numeric",year_horizon)
+  female_me = male_me = female_mae = male_mae = female_rmse = male_rmse = vector("numeric",year_horizon)
   for(ik in 1:year_horizon)
   {
     ## mortality rate
@@ -732,31 +461,15 @@ mfts_back_test <- function(iw,  pcamethod = c("static", "dynamic"), fmethod = "c
     female_rmse[ik] = rmse(res_female[ik,,1:(forecast_year-ik)], extract.years(get(state[iw]), years = (2001+ik):2016)$rate$female)
     male_rmse[ik]   = rmse(res_male[ik,,1:(forecast_year-ik)],   extract.years(get(state[iw]), years = (2001+ik):2016)$rate$male)
     
-    ## e0
-    
-    # me 
-    e0_female_me[ik] = me(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_me[ik]   = me(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="male"))
-    
-    # mae
-    e0_female_mae[ik] = mae(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_mae[ik]   = mae(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="male"))
-    
-    # rmse
-    e0_female_rmse[ik] = rmse(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_rmse[ik]   = rmse(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(state[iw]), years = (2001+ik):2016), series="male"))
   }
   return(list(res_female = res_female, res_male = res_male,
               train_residual_female = train_residual_female, train_residual_male = train_residual_male,
               female_me = female_me, male_me = male_me, 
               female_mae = female_mae, male_mae = male_mae,
-              female_rmse = female_rmse, male_rmse = male_rmse,
-              e0_female_me = e0_female_me, e0_male_me = e0_male_me, 
-              e0_female_mae = e0_female_mae, e0_male_mae = e0_male_mae, 
-              e0_female_rmse = e0_female_rmse, e0_male_rmse = e0_male_rmse))
+              female_rmse = female_rmse, male_rmse = male_rmse))
 }
 
-# function for region forecast
+# Define a function to make forecasts at region level
 
 mfts_back_test_region <- function(iw, pcamethod = c("static", "dynamic"), year_horizon, fmethod = "classical")
 {
@@ -764,7 +477,6 @@ mfts_back_test_region <- function(iw, pcamethod = c("static", "dynamic"), year_h
   n_year = tail(get(region_smooth[1])$year,1) - forecast_year
   
   res_male = res_female = array(NA, dim = c(year_horizon, 101, year_horizon))
-  e0_male = e0_female = matrix(NA, year_horizon, year_horizon)
   
   train_residual_female = train_residual_male = list()
   
@@ -781,11 +493,6 @@ mfts_back_test_region <- function(iw, pcamethod = c("static", "dynamic"), year_h
     res_female[,,ij] = t(fun_forc$fore_res[1:101,])
     res_male[,,ij]   = t(fun_forc$fore_res[102:202,])
     
-    for(ik in 1:year_horizon)
-    {
-      e0_female[ik,ij] = demography:::lt(fun_forc$fore_res[1:101,ik], startage=0, agegroup=1, sex="female")$ex[1]
-      e0_male[ik,ij]   = demography:::lt(fun_forc$fore_res[102:202,ik], startage=0, agegroup=1, sex="male")$ex[1]
-    }
   }
   # MAE
   female_me = male_me = female_mae = male_mae = female_rmse = male_rmse = 
@@ -802,29 +509,19 @@ mfts_back_test_region <- function(iw, pcamethod = c("static", "dynamic"), year_h
     female_rmse[ik] = rmse(res_female[ik,,1:(forecast_year-ik)], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$female)
     male_rmse[ik]   = rmse(res_male[ik,,1:(forecast_year-ik)],   extract.years(get(region[iw]), years = (2001+ik):2016)$rate$male)
     
-    # e0
-    e0_female_me[ik] = me(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_me[ik]   = me(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="male"))
-    
-    e0_female_mae[ik] = mae(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_mae[ik]   = mae(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="male"))
-    
-    e0_female_rmse[ik] = rmse(e0_female[ik,1:(forecast_year-ik)], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="female"))
-    e0_male_rmse[ik]   = rmse(e0_male[ik,1:(forecast_year-ik)],   e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="male"))
   }
   return(list(res_female = res_female, res_male = res_male,
               train_residual_female = train_residual_female, train_residual_male = train_residual_male,
               female_me = female_me, male_me = male_me,
               female_mae = female_mae, male_mae = male_mae,
-              female_rmse = female_rmse, male_rmse = male_rmse,
-              e0_female_me = e0_female_me, e0_male_me = e0_male_me,
-              e0_female_mae = e0_female_mae, e0_male_mae = e0_male_mae,
-              e0_female_rmse = e0_female_rmse, e0_male_rmse = e0_male_rmse))
+              female_rmse = female_rmse, male_rmse = male_rmse))
 }
 
 #######################################################################
 # Multivariate forecast of age-specific mortality rates by prefectures
 #######################################################################
+
+# Compute point forecasts for Japan and all prefectures
 
 for(ik in 1:48)
 {
@@ -846,22 +543,14 @@ for(ik in 1:48)
   assign(mfts_state_rmse_female[ik], dum$female_rmse)
   assign(mfts_state_rmse_male[ik],   dum$male_rmse)
   
-  ## e0
-  
-  assign(mfts_state_me_e0_female[ik], dum$e0_female_me)
-  assign(mfts_state_me_e0_male[ik],   dum$e0_male_me)
-  
-  assign(mfts_state_mae_e0_female[ik], dum$e0_female_mae)
-  assign(mfts_state_mae_e0_male[ik],   dum$e0_male_mae)
-  
-  assign(mfts_state_rmse_e0_female[ik], dum$e0_female_rmse)
-  assign(mfts_state_rmse_e0_male[ik],   dum$e0_male_rmse)
   rm(dum)
 }
 
 ###################################################################
 # Multivariate forecast of age-specific mortality rates by regions
 ###################################################################
+
+# Compute point forecasts for all regions
 
 for(ik in 1:8)
 {
@@ -883,22 +572,13 @@ for(ik in 1:8)
   assign(mfts_region_rmse_female[ik], dum$female_rmse)
   assign(mfts_region_rmse_male[ik],   dum$male_rmse)
   
-  # e0
-  
-  assign(mfts_region_me_e0_female[ik], dum$e0_female_me)
-  assign(mfts_region_me_e0_male[ik],   dum$e0_male_me)
-  
-  assign(mfts_region_mae_e0_female[ik], dum$e0_female_mae)
-  assign(mfts_region_mae_e0_male[ik],   dum$e0_male_mae)
-  
-  assign(mfts_region_rmse_e0_female[ik], dum$e0_female_rmse)
-  assign(mfts_region_rmse_e0_male[ik],   dum$e0_male_rmse)
-  rm(dum)
 }
 
 ############################################################################
 # Multivariate forecast of age-specific mortality rates of prefecture total
 ############################################################################
+
+# Define a function to make forecasts for prefecture total series  
 
 mfts_back_test_total <- function(fmethod = "classical", pcamethod = c("static", "dynamic"), year_horizon)
 {
@@ -959,7 +639,7 @@ mfts_back_test_total <- function(fmethod = "classical", pcamethod = c("static", 
               total_prefecture_rmse = total_prefecture_rmse, train_residual_total = train_residual_total))
 }
 
-# forecasting mortality rates of prefecture total
+# Compute forecasts of total series at prefecture total
 
 dum_state = mfts_back_test_total(pcamethod = c("dynamic"), year_horizon = 15)
 mfts_state_me_total = dum_state$total_prefecture_me
@@ -976,7 +656,6 @@ for(ik in 1:47)
 
 for(ik in 1:47)
 {
-  # assign(mfts_state_train_residual_total[ik+1], list())
   tmp = list()
   for(ih in 1:15)
   {
@@ -985,12 +664,15 @@ for(ik in 1:47)
   assign(mfts_state_train_residual_total[ik+1], tmp)
 }
 
-# total forecast by univariate forecasting method
-assign(mfts_state_train_residual_total[1], ind_Japan_train_residual_total)
+# Independent and multivariate forecasts are the same for the national total series.
+assign(mfts_state_forc_total[1], ind_dynamic_Japan_forc_total)
+assign(mfts_state_train_residual_total[1], ind_dynamic_Japan_train_residual_total)
 
 ########################################################################
 # Multivariate forecast of age-specific mortality rates of region total
 ########################################################################
+
+# Define a function to make forecasts for region total series  
 
 mfts_back_test_region_total = function(fmethod = "classical", pcamethod = c("static", "dynamic"), year_horizon)
 {
@@ -1016,7 +698,6 @@ mfts_back_test_region_total = function(fmethod = "classical", pcamethod = c("sta
                                                type = "mortality", label = "total_region_comb", skip = 0)
   
   res_region = array(NA, dim = c(year_horizon, 101, year_horizon, 8))
-  e0_region = array(NA, dim = c(year_horizon, year_horizon, 8))
   train_residual_total = list()
   for(ij in 1:year_horizon)
   {
@@ -1028,18 +709,11 @@ mfts_back_test_region_total = function(fmethod = "classical", pcamethod = c("sta
     for(iwk in 1:8)
     {
       res_region[,,ij,iwk] = t(fun_forc$fore_res[(101*(iwk-1)+1):(101*iwk),])
-      
-      for(ikj in 1:year_horizon)
-      {
-        e0_region[ikj,ij,iwk] = demography:::lt(fun_forc$fore_res[(101*(iwk-1)+1):(101*iwk),ikj], startage = 0,
-                                                agegroup = 1, sex = "total")$ex[1]
-      }
       train_residual_total[[ij]][,,iwk] = fun_forc$train_residual[(101*(iwk-1)+1):(101*iwk),]
     }
   }
   # Errors
-  total_region_me = total_region_mae = total_region_rmse = 
-    e0_total_region_me = e0_total_region_mae = e0_total_region_rmse = matrix(NA, year_horizon, 8)
+  total_region_me = total_region_mae = total_region_rmse = matrix(NA, year_horizon, 8)
   for(iw in 1:8)
   {
     for(ik in 1:year_horizon)
@@ -1048,22 +722,16 @@ mfts_back_test_region_total = function(fmethod = "classical", pcamethod = c("sta
       total_region_mae[ik,iw] = mae(res_region[ik,,1:(forecast_year-ik),iw], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
       total_region_rmse[ik,iw] = rmse(res_region[ik,,1:(forecast_year-ik),iw], extract.years(get(region[iw]), years = (2001+ik):2016)$rate$total)
       
-      e0_total_region_me[ik,iw] = me(e0_region[ik,1:(forecast_year-ik),iw], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="total"))
-      e0_total_region_mae[ik,iw] = mae(e0_region[ik,1:(forecast_year-ik),iw], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="total"))
-      e0_total_region_rmse[ik,iw] = rmse(e0_region[ik,1:(forecast_year-ik),iw], e0(extract.years(get(region[iw]), years = (2001+ik):2016), series="total"))
     }
   }
   return(list(res_region = res_region, 
               train_residual_total = train_residual_total,
               total_region_me = total_region_me, 
               total_region_mae = total_region_mae,
-              total_region_rmse = total_region_rmse,
-              e0_total_region_me = e0_total_region_me,
-              e0_total_region_mae = e0_total_region_mae,
-              e0_total_region_rmse = e0_total_region_rmse))    
+              total_region_rmse = total_region_rmse))    
 }
 
-# forecasting mortality rates of region total
+# Compute forecasts of total series at region total
 
 dum_region = mfts_back_test_region_total(pcamethod = "dynamic", year_horizon = 15)
 mfts_region_me_total = dum_region$total_region_me
@@ -1093,7 +761,7 @@ for(ik in 1:8)
 # Calculation of point forecast errors
 #######################################
 
-#  State level
+#  prefecture level
 
 mfts_me_female_mean_overall = mfts_me_male_mean_overall =
   mfts_mae_female_mean_overall = mfts_mae_male_mean_overall = 
@@ -1167,7 +835,7 @@ rowmeans_mfts_region_rmse_total_mean_overall  = apply(mfts_region_rmse_total, 1,
 
 # Mean Errors
 
-mfts_me_total_mean_overall =  ind_Japan_me_total 
+mfts_me_total_mean_overall =  ind_dynamic_Japan_me_total 
 
 mfts_all_level_err_me = cbind(mfts_me_total_mean_overall, 
                               apply(cbind(mfts_me_female_mean_overall[,1], mfts_me_male_mean_overall[,1]), 1,mean),
@@ -1180,7 +848,7 @@ mfts_all_level_err_me_all = rbind(mfts_all_level_err_me, colMeans(mfts_all_level
 
 # Mean Absolute Errors
 
-mfts_mae_total_mean_overall =  ind_Japan_mae_total 
+mfts_mae_total_mean_overall =  ind_dynamic_Japan_mae_total 
 
 mfts_all_level_err_mae = cbind(mfts_mae_total_mean_overall, 
                                apply(cbind(mfts_mae_female_mean_overall[,1], mfts_mae_male_mean_overall[,1]), 1,mean),
@@ -1193,7 +861,7 @@ mfts_all_level_err_mae_all = rbind(mfts_all_level_err_mae, colMeans(mfts_all_lev
 
 # Root Mean Square Errors
 
-mfts_rmse_total_mean_overall = ind_Japan_rmse_total 
+mfts_rmse_total_mean_overall = ind_dynamic_Japan_rmse_total 
 
 mfts_all_level_err_rmse = cbind(mfts_rmse_total_mean_overall, 
                                 apply(cbind(mfts_rmse_female_mean_overall[,1], mfts_rmse_male_mean_overall[,1]), 1,mean),
